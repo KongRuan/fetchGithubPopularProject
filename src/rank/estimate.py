@@ -69,6 +69,7 @@ def fetch_history(
     cache,
     day: str,
     *,
+    session=None,
     sleep: Callable[[float], None] = time.sleep,
     retries: int = 3,
 ) -> list[dict]:
@@ -77,6 +78,10 @@ def fetch_history(
     Retries transient transport and HTTP errors with exponential backoff on
     DELAY_SECONDS; a definitive failure propagates so the caller can mark the
     record ``est-failed``. Cache hits return before any network call or sleep.
+
+    ``session`` should be a shared ``requests.Session`` in production: without
+    one, every request pays a fresh TLS handshake, which dominates a ~370-repo
+    sweep. Tests pass none and stub ``requests.get`` directly.
 
     The cache key embeds day + repo + period + window, so same-day re-runs are
     free and a new day refetches.
@@ -87,11 +92,12 @@ def fetch_history(
         return cached
 
     url = history_url(owner, name, period, date_from, date_to)
+    get = session.get if session is not None else requests.get
     delay = DELAY_SECONDS
     last: Exception | None = None
     for attempt in range(1, retries + 1):
         try:
-            response = requests.get(
+            response = get(
                 url,
                 headers={"Accept": "application/json"},
                 timeout=30,

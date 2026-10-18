@@ -227,6 +227,36 @@ def test_empty_series_is_est_failed_and_leaves_m30_none():
     assert records["new/repo"]["source"] == "est-failed"
 
 
+def test_fetch_history_reuses_a_shared_session():
+    """Without a session each request pays a fresh TLS handshake; that measured
+    at ~4.9s/call and cost the first real run >10 minutes. cli binds one
+    requests.Session for the whole estimate sweep."""
+    calls = []
+
+    class Response:
+        status_code = 200
+
+        def raise_for_status(self):
+            return None
+
+        def json(self):
+            return {"data": {"rows": [{"date": "a", "stargazers": "1"},
+                                      {"date": "b", "stargazers": "9"}]}}
+
+    class StubSession:
+        def get(self, url, headers=None, timeout=None):
+            calls.append((url, timeout))
+            return Response()
+
+    rows = est.fetch_history("o", "n", "week", date(2026, 9, 18),
+                             date(2026, 10, 18), None, "2026-10-18",
+                             session=StubSession(), sleep=lambda _s: None)
+    assert rows == [{"date": "a", "stargazers": "1"},
+                    {"date": "b", "stargazers": "9"}]
+    assert len(calls) == 1
+    assert calls[0][1] == 30
+
+
 def test_rank_returns_live_references_into_records():
     """cli.step_merge polices revalidated estimates with a second
     apply_sanity_rules(records) pass; that only reaches the top list because

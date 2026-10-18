@@ -2,10 +2,13 @@
 from __future__ import annotations
 
 import argparse
+import functools
 import json
 import logging
 import sys
 from datetime import date, timedelta
+
+import requests
 
 from . import estimate as est
 from .cache import Cache
@@ -60,20 +63,25 @@ def step_merge(settings: Settings, cache: Cache, day: str, today: date) -> int:
         return 1
     records = merge_records(pages)
     date_from, date_to = _window(settings, today)
-    est.fill_estimates(
-        records,
-        period_days=settings.period_days,
-        enable=settings.enable_ossinsight_estimate,
-        date_from=date_from,
-        date_to=date_to,
-        history=est.fetch_history,
-        cache=cache,
-        day=day,
-    )
-    apply_sanity_rules(records)
-    top, _ = rank(records, settings.top_n)
-    est.revalidate(top, date_from=date_from, date_to=date_to,
-                   history=est.fetch_history, cache=cache, day=day)
+    # One shared session for the whole estimate sweep. Without connection
+    # reuse every OSSInsight call pays a fresh TLS handshake, which measured
+    # at ~4.9s per request and pushed the first real run past 10 minutes.
+    with requests.Session() as session:
+        history = functools.partial(est.fetch_history, session=session)
+        est.fill_estimates(
+            records,
+            period_days=settings.period_days,
+            enable=settings.enable_ossinsight_estimate,
+            date_from=date_from,
+            date_to=date_to,
+            history=history,
+            cache=cache,
+            day=day,
+        )
+        apply_sanity_rules(records)
+        top, _ = rank(records, settings.top_n)
+        est.revalidate(top, date_from=date_from, date_to=date_to,
+                       history=history, cache=cache, day=day)
     apply_sanity_rules(records)
     # The wrapper (not bare records) lets a later render label the report with
     # the day the data was actually merged instead of "today".
