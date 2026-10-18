@@ -20,6 +20,10 @@ WINDOWS = ("daily", "weekly", "monthly")
 BASE = "https://github.com/trending"
 DELAY_SECONDS = 0.35
 
+#: Retrying a missing page can never succeed — almost always a bad language
+#: slug in config.yaml — so fail it immediately instead of burning retries.
+NOT_FOUND_STATUSES = (404, 410)
+
 
 class FetchError(Exception):
     """Raised when a page cannot be downloaded after all retries."""
@@ -52,16 +56,30 @@ class TrendingFetcher:
                     timeout=30,
                     headers={"User-Agent": USER_AGENT},
                 )
+                if response.status_code in NOT_FOUND_STATUSES:
+                    raise FetchError(
+                        f"GET {url} returned {response.status_code} (not retryable)"
+                    )
                 response.raise_for_status()
                 response.encoding = "utf-8"
                 return response.text
-            except Exception as exc:  # noqa: BLE001 - retry on any transport error
+            except (requests.RequestException, OSError) as exc:
+                # Deliberately narrow: only transport/HTTP trouble is retried.
+                # Anything else (a TypeError from a bad call, say) is a
+                # programming error and must surface immediately rather than be
+                # retried three times and rebranded as a network failure.
                 last = exc
-                log.warning("attempt %d/%d failed for %s: %s", attempt, attempts, url, exc)
+                log.warning(
+                    "attempt %d/%d failed for %s: %s: %s",
+                    attempt, attempts, url, type(exc).__name__, exc,
+                )
                 if attempt < attempts:
                     self.sleep(delay)
                     delay *= 2
-        raise FetchError(f"GET {url} failed after {attempts} attempts: {last}")
+        raise FetchError(
+            f"GET {url} failed after {attempts} attempts: "
+            f"{type(last).__name__}: {last}"
+        ) from last
 
     def trending_urls(self, settings: Settings) -> Iterator[tuple[str, str | None, str]]:
         """Yield ``(window, language, url)`` for the global page then each language."""
