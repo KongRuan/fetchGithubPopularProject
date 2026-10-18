@@ -16,8 +16,12 @@ USER_AGENT = (
     "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
     "(KHTML, like Gecko) Chrome/124.0 Safari/537.36"
 )
+# Both the Trending ``?since=`` values and the ``period`` strings
+# ``parse_trending_html`` accepts. Keep this in lockstep with parse.GAIN_FIELD.
 WINDOWS = ("daily", "weekly", "monthly")
 BASE = "https://github.com/trending"
+# Polite gap between page downloads. Cache hits still sleep: a resumed run
+# that only needs the tail of the list should not burst the remaining GETs.
 DELAY_SECONDS = 0.35
 
 #: Retrying a missing page can never succeed — almost always a bad language

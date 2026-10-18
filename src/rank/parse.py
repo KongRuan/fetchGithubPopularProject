@@ -1,17 +1,31 @@
 """Pure parsing of GitHub Trending HTML pages.
 
 Logic ported from the PowerShell prototype that produced the validated
-2026-10-18 ranking.
+2026-10-18 ranking. No network and no config: a page string in, a list of
+partial records out. ``merge.merge_records`` folds those partials into the
+canonical per-repo record.
+
+A page only ever publishes one window ("stars today" / "this week" /
+"this month"). The matching gain field (``d1`` / ``w7`` / ``m30``) is filled
+and the other two stay ``None``, so a later merge can take the max across
+pages without a daily figure overwriting a monthly one.
 """
 from __future__ import annotations
 
 import html as html_lib
 import re
 
+# One <article class="Box-row"> per repository on the page.
 ARTICLE_RE = re.compile(r'<article class="Box-row">(.*?)</article>', re.S)
+# The visible "owner / name" heading. Preferred over the return_to fallback
+# because it is the link the page actually shows.
 H2_RE = re.compile(r'<h2 class="h3 lh-condensed">(.*?)</h2>', re.S)
 HREF_RE = re.compile(r'href="/([^"]+)"')
+# When the heading link is missing, the only repo id left is a login redirect:
+# return_to=%2Fowner%2Fname. "%2F" inside the name is decoded by the caller.
 RETURN_TO_RE = re.compile(r"return_to=%2F([^\"&]+)")
+# The stargazers anchor holds the total, plus other markup and sometimes more
+# than one number. The last number in the anchor is the total.
 STARS_LINK_RE = re.compile(r'href="[^"]+/stargazers"[^>]*>(.*?)</a>', re.S)
 NUMBER_RE = re.compile(r"[\d,]+")
 DESC_RE = re.compile(r'<p class="col-9[^"]*">(.*?)</p>', re.S)

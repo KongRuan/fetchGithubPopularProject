@@ -1,4 +1,14 @@
-"""Command line entry point: fetch -> merge -> render, or any single step."""
+"""Command line entry point: fetch -> merge -> render, or any single step.
+
+Exit codes: 0 success, 1 a step had nothing to work with (no pages, no merged
+file, nothing ranked), 2 a bad config. With no subcommand all three steps run
+and the first non-zero code stops the pipeline.
+
+Everything is date-scoped. ``day`` is today as ``YYYY-MM-DD``. Fetch writes
+HTML under ``pages/<day>/``; merge reads that day and writes ``merged.json``
+tagged with ``merged_on``. Render labels the report from ``merged_on``, not
+from "today", so a report built off yesterday's merge says yesterday.
+"""
 from __future__ import annotations
 
 import argparse
@@ -21,14 +31,23 @@ from .report import render_markdown
 
 log = logging.getLogger(__name__)
 
+# Written by step_merge, read by step_render.
+# {"merged_on": "YYYY-MM-DD", "records": {"owner/name": record, ...}}
 MERGED_KEY = "merged.json"
 
 
 def _window(settings: Settings, today: date) -> tuple[date, date]:
+    """Inclusive ``[today - period_days, today]`` passed to OSSInsight."""
     return today - timedelta(days=settings.period_days), today
 
 
 def _load_pages(settings: Settings, cache: Cache, day: str) -> list[list[dict]]:
+    """Parse every cached Trending page for ``day``.
+
+    A missing file is skipped, not an error: fetch logs and continues when a
+    single language slug 404s, and merge should rank whatever did download.
+    The global page (``language is None``) is stored as slug ``all``.
+    """
     pages: list[list[dict]] = []
     for window in FETCH_WINDOWS:
         for language in (None, *settings.languages):
@@ -42,6 +61,7 @@ def _load_pages(settings: Settings, cache: Cache, day: str) -> list[list[dict]]:
 
 
 def step_fetch(settings: Settings, cache: Cache, day: str) -> int:
+    """Download Trending pages into the date-scoped cache. 0 if any page exists."""
     fetcher = TrendingFetcher()
     keys = fetcher.fetch_all(settings, cache, day)
     expected = len(FETCH_WINDOWS) * (1 + len(settings.languages))
@@ -57,6 +77,13 @@ def step_fetch(settings: Settings, cache: Cache, day: str) -> int:
 
 
 def step_merge(settings: Settings, cache: Cache, day: str, today: date) -> int:
+    """Parse, estimate, sanity-check, revalidate the top list, write merged.json.
+
+    Sanity rules run twice. The first pass drops estimates that cannot survive
+    ranking, so ``revalidate`` only spends daily-series calls on rows that
+    could make the report. The second pass repeats the check on the numbers
+    revalidate just wrote — a daily delta can still be implausible.
+    """
     pages = _load_pages(settings, cache, day)
     if not pages:
         log.error("no cached pages for %s - run `fetch` first", day)
@@ -92,6 +119,11 @@ def step_merge(settings: Settings, cache: Cache, day: str, today: date) -> int:
 
 
 def step_render(settings: Settings, cache: Cache, today: date) -> int:
+    """Write ``output/rank_<merged_on>.md`` and ``data/results/rank_<merged_on>.json``.
+
+    Prints the report path on stdout (the only thing a caller should parse);
+    everything else goes through logging.
+    """
     payload = cache.read_json(MERGED_KEY)
     if not isinstance(payload, dict) or "records" not in payload:
         log.error("no merged data - run `merge` first")

@@ -9,6 +9,8 @@ import yaml
 ALLOWED_PERIODS = (1, 7, 30)
 PERIOD_NAME = {1: "daily", 7: "weekly", 30: "monthly"}
 
+# Trending URL slugs, not display names. "#" is percent-encoded in the slug
+# (c%23 = C#, f%23 = F#). "c++" is left as-is: that is the slug GitHub serves.
 DEFAULT_LANGUAGES = (
     "python", "typescript", "javascript", "rust", "go", "java", "c++", "c%23",
     "shell", "ruby", "php", "kotlin", "swift", "dart", "scala", "haskell",
@@ -40,6 +42,10 @@ def _as_int(value, key: str) -> int:
 
 @dataclass(frozen=True)
 class Settings:
+    """Resolved configuration. ``root`` is the directory containing the config file,
+    and every relative path (output, cache, results) is anchored there.
+    """
+
     root: Path
     period_days: int = 30
     top_n: int = 20

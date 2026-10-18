@@ -128,6 +128,11 @@ def fetch_history(
 
 
 def _owner_name(repo: str) -> tuple[str, str] | None:
+    """Split ``owner/name``. Names may themselves contain slashes; owner may not.
+
+    A repo id with no slash cannot be turned into an OSSInsight URL. The caller
+    records ``est-failed`` rather than guessing.
+    """
     if "/" not in repo:
         return None
     owner, name = repo.split("/", 1)

@@ -1,4 +1,23 @@
-"""Merge parsed Trending pages, apply validation rules, and rank."""
+"""Merge parsed Trending pages, apply validation rules, and rank.
+
+A record, keyed by ``"owner/name"``, has this shape from here on::
+
+    {
+        "repo": "owner/name",
+        "stars": 12000,          # lifetime total; 0 when the page had none
+        "m30": 800,              # stars gained in the report window, or None
+        "w7": 200,               # official 7-day gain, reference column only
+        "d1": None,              # official 1-day gain; not used by the report
+        "desc": "...",
+        "lang": "Python",
+        "source": "trending",    # see SOURCE_* below
+    }
+
+``m30`` is the sort key even when ``period_days`` is 1 or 7: the field name is
+historical (the default window is 30 days) and every window writes into it.
+``source`` says where ``m30`` came from. Only ``est-*`` values are subject to
+``apply_sanity_rules``; ``trending`` is never discarded.
+"""
 from __future__ import annotations
 
 from typing import Iterable
@@ -8,6 +27,11 @@ from typing import Iterable
 ESTIMATE_MARGIN = 1.10
 
 #: Source labels recorded on every record.
+#: trending    — GitHub Trending's own "stars this ..." figure (authoritative)
+#: est-week    — OSSInsight weekly series, the cheap first pass
+#: est-day     — same API, daily series, written only by estimate.revalidate
+#: est-failed  — no usable series; m30 stays None and the repo cannot rank
+#: dropped     — an est-* figure failed the sanity check and m30 was cleared
 SOURCE_TRENDING = "trending"
 SOURCE_EST_WEEK = "est-week"
 SOURCE_EST_DAY = "est-day"

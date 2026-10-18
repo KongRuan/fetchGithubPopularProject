@@ -3,6 +3,11 @@ from __future__ import annotations
 
 from datetime import date
 
+# 来源 column. est-week and est-day both render as 估算 on purpose: the report
+# does not distinguish the coarse weekly pass from the daily revalidation.
+# Both are estimates; only "trending" is an official Trending figure.
+# est-failed / dropped normally never reach the table (m30 is None, so rank()
+# excludes them) but the labels stay so a stray row is not shown raw.
 SOURCE_LABEL = {
     "trending": "官方",
     "est-week": "估算",
@@ -11,6 +16,7 @@ SOURCE_LABEL = {
     "dropped": "已剔除",
 }
 
+# How many of ``rest`` (ranked, but past top_n) the "紧随其后" section lists.
 RUNNERS_UP = 5
 
 

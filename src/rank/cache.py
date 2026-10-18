@@ -7,6 +7,14 @@ from typing import Any
 
 
 class Cache:
+    """Files under ``root``, addressed by a relative key such as ``pages/<day>/...``.
+
+    ``path`` creates parent directories and is for writes. ``exists`` and a
+    missing ``read_json`` must not: a probe that mkdir's would turn "not cached
+    yet" into an empty directory tree, and on Windows mkdir raises if some
+    parent component is already a file.
+    """
+
     def __init__(self, root: str | Path) -> None:
         self.root = Path(root)
 
