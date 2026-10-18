@@ -55,3 +55,28 @@ def test_real_weekly_and_daily_samples():
         (SAMPLES / "trending_daily.html").read_text(encoding="utf-8"), "daily")
     assert len(weekly) == 3 and all(r["w7"] > 0 for r in weekly)
     assert len(daily) == 3 and all(r["d1"] > 0 for r in daily)
+
+
+def test_description_collapses_nbsp_and_keeps_literal_tags():
+    """`&nbsp;` must fold like a space, but a literal `&lt;em&gt;` must stay text."""
+    html = (
+        '<article class="Box-row">'
+        '<h2 class="h3 lh-condensed"><a href="/a/b">a / b</a></h2>'
+        '<p class="col-9 color-fg-muted">a&nbsp;b &amp;&nbsp;c &lt;em&gt;d&lt;/em&gt;</p>'
+        '<span>5 stars this month</span>'
+        "</article>"
+    )
+    rows = parse_trending_html(html, "monthly")
+    assert rows[0]["desc"] == "a b & c <em>d</em>"
+
+
+def test_row_without_description_gets_empty_string():
+    html = (
+        '<article class="Box-row">'
+        '<h2 class="h3 lh-condensed"><a href="/a/b">a / b</a></h2>'
+        '<span>5 stars this month</span>'
+        "</article>"
+    )
+    rows = parse_trending_html(html, "monthly")
+    assert rows[0]["desc"] == ""
+    assert rows[0]["lang"] == ""

@@ -25,7 +25,6 @@ GAIN_PATTERNS = {
     "daily": re.compile(r"([\d,]+)\s*stars today"),
 }
 GAIN_FIELD = {"monthly": "m30", "weekly": "w7", "daily": "d1"}
-FIELDS = ("repo", "stars", "m30", "w7", "d1", "desc", "lang")
 
 
 def _to_int(text: str) -> int:
@@ -33,8 +32,11 @@ def _to_int(text: str) -> int:
 
 
 def _clean(fragment: str) -> str:
+    # Order matters: strip real tags FIRST so a literal `&lt;b&gt;` in the
+    # source stays text, then unescape so `&nbsp;` becomes U+00A0, which the
+    # final whitespace collapse then folds like any other space.
     text = TAG_RE.sub(" ", fragment)
-    return WHITESPACE_RE.sub(" ", text).strip()
+    return WHITESPACE_RE.sub(" ", html_lib.unescape(text)).strip()
 
 
 def _repo_id(block: str) -> str | None:
@@ -84,7 +86,7 @@ def parse_trending_html(page: str, period: str) -> list[dict]:
                 "m30": _to_int(gain.group(1)) if field == "m30" else None,
                 "w7": _to_int(gain.group(1)) if field == "w7" else None,
                 "d1": _to_int(gain.group(1)) if field == "d1" else None,
-                "desc": html_lib.unescape(_clean(desc_match.group(1))) if desc_match else "",
+                "desc": _clean(desc_match.group(1)) if desc_match else "",
                 "lang": lang_match.group(1) if lang_match else "",
             }
         )
