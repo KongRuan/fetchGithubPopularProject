@@ -1,0 +1,259 @@
+{
+  "run_date": "2026-10-18",
+  "period_days": 30,
+  "top": [
+    {
+      "repo": "morluto/rea",
+      "stars": 310030,
+      "m30": 313886,
+      "w7": 239923,
+      "d1": null,
+      "desc": "Reverse engineer anything with agents, from app behavior down to native binaries.",
+      "lang": "TypeScript",
+      "source": "est-day"
+    },
+    {
+      "repo": "boykopovar/AnyPS5",
+      "stars": 41973,
+      "m30": 42622,
+      "w7": 16250,
+      "d1": null,
+      "desc": "Tool for automatic PS5 executables porting to Linux and Windows",
+      "lang": "C++",
+      "source": "est-day"
+    },
+    {
+      "repo": "debpalash/VoiceStudio",
+      "stars": 73673,
+      "m30": 40333,
+      "w7": 15911,
+      "d1": 2125,
+      "desc": "VoiceStudio is the open-source, fully-local ElevenLabs alternative — voice cloning, voice design, video dubbing, dictation, transcription & audiobook creation in 646 languages.",
+      "lang": "Python",
+      "source": "trending"
+    },
+    {
+      "repo": "mattpocock/skills",
+      "stars": 295255,
+      "m30": 31655,
+      "w7": 11272,
+      "d1": null,
+      "desc": "Skills for Real Engineers. Straight from my .agents directory.",
+      "lang": "Shell",
+      "source": "est-day"
+    },
+    {
+      "repo": "storytold/artcraft",
+      "stars": 31917,
+      "m30": 31029,
+      "w7": 18479,
+      "d1": null,
+      "desc": "ArtCraft is an intentional crafting engine for artists, designers, and filmmakers",
+      "lang": "Rust",
+      "source": "est-day"
+    },
+    {
+      "repo": "vectorize-io/hindsight",
+      "stars": 50924,
+      "m30": 27228,
+      "w7": null,
+      "d1": null,
+      "desc": "Hindsight: Agent Memory That Learns",
+      "lang": "Python",
+      "source": "trending"
+    },
+    {
+      "repo": "DietrichGebert/ponytail",
+      "stars": 166342,
+      "m30": 25969,
+      "w7": null,
+      "d1": 840,
+      "desc": "Makes your AI agent think like the laziest senior dev in the room. The best code is the code you never wrote.",
+      "lang": "JavaScript",
+      "source": "est-day"
+    },
+    {
+      "repo": "stablyai/orca",
+      "stars": 95591,
+      "m30": 24786,
+      "w7": null,
+      "d1": 830,
+      "desc": "Orca is the place for working with a fleet of agents (e.g. Grok Bot, Claude Code). Run any coding agent with your own subscription. Available on desktop, mobile and remote runtime.",
+      "lang": "TypeScript",
+      "source": "trending"
+    },
+    {
+      "repo": "affaan-m/ECC",
+      "stars": 282656,
+      "m30": 23023,
+      "w7": null,
+      "d1": 1145,
+      "desc": "The agent harness performance optimization system. Skills, instincts, memory, security, and research-first development for Claude Code, Codex, Opencode, Cursor and beyond.",
+      "lang": "JavaScript",
+      "source": "trending"
+    },
+    {
+      "repo": "paperclipai/paperclip",
+      "stars": 103724,
+      "m30": 22891,
+      "w7": null,
+      "d1": null,
+      "desc": "The open-source app everyone uses to manage agents at work",
+      "lang": "TypeScript",
+      "source": "trending"
+    },
+    {
+      "repo": "cloudflare/security-audit-skill",
+      "stars": 30766,
+      "m30": 22054,
+      "w7": null,
+      "d1": null,
+      "desc": "A coding-agent skill for multi-phase security audits with independently verified, machine-readable findings",
+      "lang": "JavaScript",
+      "source": "trending"
+    },
+    {
+      "repo": "lexmount/moli",
+      "stars": 19301,
+      "m30": 17501,
+      "w7": null,
+      "d1": null,
+      "desc": "Best headless browser for AI agents. Lite, Fast, High-Compatibility. Built in Rust",
+      "lang": "Rust",
+      "source": "trending"
+    },
+    {
+      "repo": "Panniantong/Agent-Reach",
+      "stars": 98801,
+      "m30": 16458,
+      "w7": null,
+      "d1": null,
+      "desc": "Give your AI agent eyes to see the entire internet. Read & search Twitter, Reddit, YouTube, GitHub, Bilibili, XiaoHongShu — one CLI, zero API fees.",
+      "lang": "Python",
+      "source": "trending"
+    },
+    {
+      "repo": "cathrynlavery/diagram-design",
+      "stars": 57128,
+      "m30": 16394,
+      "w7": 8382,
+      "d1": null,
+      "desc": "Editorial diagram design for Claude Code, Codex, GitHub Copilot, Cursor, Factory Droid, and Pi. 44 diagram types. Self-contained HTML + SVG. No shadows. No Mermaid slop.",
+      "lang": "HTML",
+      "source": "est-day"
+    },
+    {
+      "repo": "rohitg00/ai-engineering-from-scratch",
+      "stars": 70730,
+      "m30": 16014,
+      "w7": null,
+      "d1": null,
+      "desc": "Learn AI Engineering! Learn it. Build it. Ship it for others.",
+      "lang": "Python",
+      "source": "trending"
+    },
+    {
+      "repo": "ifixai-ai/iFixAi",
+      "stars": 29166,
+      "m30": 15200,
+      "w7": 6895,
+      "d1": null,
+      "desc": "Independent Auditing of AI Agents. Run by human or the agent itself, to answer the most crucial question in the AI Agent Economy. Is the agent doing what is supposed to do? With iFixAi you can have this answer in less than 120 seconds.",
+      "lang": "Python",
+      "source": "est-day"
+    },
+    {
+      "repo": "heygen-com/hyperframes",
+      "stars": 66092,
+      "m30": 15041,
+      "w7": 5639,
+      "d1": null,
+      "desc": "Write HTML. Render video. Built for agents.",
+      "lang": "TypeScript",
+      "source": "trending"
+    },
+    {
+      "repo": "pbakaus/impeccable",
+      "stars": 82417,
+      "m30": 13963,
+      "w7": null,
+      "d1": null,
+      "desc": "The design language that makes your AI harness better at design.",
+      "lang": "Rust",
+      "source": "trending"
+    },
+    {
+      "repo": "addyosmani/agent-skills",
+      "stars": 107901,
+      "m30": 12605,
+      "w7": null,
+      "d1": null,
+      "desc": "Production-grade engineering skills for AI coding agents.",
+      "lang": "JavaScript",
+      "source": "trending"
+    },
+    {
+      "repo": "DuarteSantos8/openGym",
+      "stars": 13219,
+      "m30": 12161,
+      "w7": 4041,
+      "d1": null,
+      "desc": "Self-hosted gym & body-weight tracker — plan routines, log workouts (supersets, warm-ups, cardio), see which muscles are trained, fatigued or detrained, import from FitNotes/Strong/Hevy, passkey login. Your data, your server.",
+      "lang": "JavaScript",
+      "source": "trending"
+    }
+  ],
+  "runners_up": [
+    {
+      "repo": "NationalSecurityAgency/ghidra",
+      "stars": 90368,
+      "m30": 12003,
+      "w7": 7608,
+      "d1": 652,
+      "desc": "Ghidra is a software reverse engineering (SRE) framework",
+      "lang": "Java",
+      "source": "trending"
+    },
+    {
+      "repo": "obra/superpowers",
+      "stars": 301281,
+      "m30": 10399,
+      "w7": 4341,
+      "d1": 670,
+      "desc": "An agentic skills framework & software development methodology that works.",
+      "lang": "Shell",
+      "source": "est-week"
+    },
+    {
+      "repo": "hydra-db/hydradb",
+      "stars": 13065,
+      "m30": 9995,
+      "w7": null,
+      "d1": null,
+      "desc": "HydraDB - fast graph database on object storage",
+      "lang": "Rust",
+      "source": "trending"
+    },
+    {
+      "repo": "tashfeenahmed/freellmapi",
+      "stars": 36688,
+      "m30": 9863,
+      "w7": 3751,
+      "d1": null,
+      "desc": "7.4 billion tokens per month. 34 free LLM providers. 635 free model endpoints. All behind one /v1 endpoint, plus any custom OpenAI-compatible endpoint. Smart routing, automatic failover, encrypted keys. Personal experimentation only.",
+      "lang": "TypeScript",
+      "source": "trending"
+    },
+    {
+      "repo": "Tencent/WeKnora",
+      "stars": 34541,
+      "m30": 8870,
+      "w7": null,
+      "d1": null,
+      "desc": "Open-source LLM knowledge platform: turn raw documents into a queryable RAG, an autonomous reasoning agent, and a self-maintaining Wiki.",
+      "lang": "Go",
+      "source": "trending"
+    }
+  ],
+  "scanned": 886
+}
