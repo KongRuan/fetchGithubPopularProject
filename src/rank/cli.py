@@ -6,7 +6,6 @@ import json
 import logging
 import sys
 from datetime import date, timedelta
-from pathlib import Path
 
 from . import estimate as est
 from .cache import Cache
@@ -86,11 +85,15 @@ def step_merge(settings: Settings, cache: Cache, day: str, today: date) -> int:
 
 def step_render(settings: Settings, cache: Cache, today: date) -> int:
     payload = cache.read_json(MERGED_KEY)
-    if not payload or "records" not in payload:
+    if not isinstance(payload, dict) or "records" not in payload:
         log.error("no merged data - run `merge` first")
         return 1
     records = payload["records"]
-    run_date = date.fromisoformat(payload["merged_on"])
+    try:
+        run_date = date.fromisoformat(payload["merged_on"])
+    except (KeyError, TypeError, ValueError) as exc:
+        log.error("merged data has no usable date (%s) - run `merge` again", exc)
+        return 1
     if run_date != today:
         log.info("report reflects data merged on %s", run_date.isoformat())
 
@@ -156,6 +159,10 @@ def main(argv: list[str] | None = None) -> int:
         level=logging.DEBUG if args.verbose else logging.INFO,
         format="%(levelname)s %(message)s",
     )
+    # basicConfig is a no-op once the root logger has a handler, so pin the
+    # level explicitly: otherwise the first call's verbosity would stick for
+    # any subsequent in-process call to main().
+    logging.getLogger().setLevel(logging.DEBUG if args.verbose else logging.INFO)
     try:
         settings = load_config(args.config)
     except ConfigError as exc:

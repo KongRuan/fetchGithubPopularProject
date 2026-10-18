@@ -129,3 +129,21 @@ def test_fetch_step_warns_on_partial_pages(tmp_path, monkeypatch, caplog):
     with caplog.at_level(logging.WARNING):
         assert cli.main(["--config", str(cfg), "fetch"]) == 0
     assert "only 4/6" in caplog.text
+
+
+def test_render_rejects_corrupted_merged_payload(tmp_path):
+    """A truncated or hand-edited merged.json must exit 1 with a message,
+    not blow up with KeyError/TypeError."""
+    from src.rank.cache import Cache
+
+    cfg = _write_config(tmp_path)
+    cache = Cache(tmp_path / "data" / "cache")
+
+    cache.write_json("merged.json", 5)                 # bare scalar
+    assert cli.main(["--config", str(cfg), "render"]) == 1
+
+    cache.write_json("merged.json", {"records": {}})   # wrapper without a date
+    assert cli.main(["--config", str(cfg), "render"]) == 1
+
+    cache.write_json("merged.json", {"merged_on": "not-a-date", "records": {}})
+    assert cli.main(["--config", str(cfg), "render"]) == 1
