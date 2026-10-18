@@ -16,7 +16,13 @@ class Cache:
         return target
 
     def exists(self, key: str) -> bool:
-        return self.path(key).is_file()
+        # Deliberately bypasses path(): a read must not create directories,
+        # and must return False rather than raise when a parent component is
+        # already a file (Windows raises FileExistsError from mkdir).
+        try:
+            return (self.root / key).is_file()
+        except OSError:
+            return False
 
     def read_text(self, key: str) -> str:
         return self.path(key).read_text(encoding="utf-8")
@@ -25,9 +31,12 @@ class Cache:
         self.path(key).write_text(text, encoding="utf-8")
 
     def read_json(self, key: str) -> Any | None:
+        # UnicodeDecodeError is a ValueError, not an OSError: a write that died
+        # mid-character of CJK content leaves valid UTF-8-unclosable bytes, and
+        # that must mean "re-fetch", not "crash the run".
         try:
             return json.loads(self.read_text(key))
-        except (FileNotFoundError, json.JSONDecodeError, OSError):
+        except (FileNotFoundError, json.JSONDecodeError, UnicodeDecodeError, OSError):
             return None
 
     def write_json(self, key: str, value: Any) -> None:
