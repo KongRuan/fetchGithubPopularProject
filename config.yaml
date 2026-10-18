@@ -1,0 +1,46 @@
+# Star ranking window in days. GitHub Trending only publishes daily/weekly/monthly,
+# so only 1, 7 and 30 are accepted.
+period_days: 30
+# How many repositories to put in the report table.
+top_n: 20
+# Language slugs used for https://github.com/trending/<slug> pages.
+languages:
+  - python
+  - typescript
+  - javascript
+  - rust
+  - go
+  - java
+  - "c++"
+  - "c%23"
+  - shell
+  - ruby
+  - php
+  - kotlin
+  - swift
+  - dart
+  - scala
+  - haskell
+  - elixir
+  - lua
+  - r
+  - zig
+  - html
+  - css
+  - jupyter-notebook
+  - clojure
+  - powershell
+  - solidity
+  - objective-c
+  - perl
+  - "f%23"
+  - erlang
+  - ocaml
+  - fortran
+  - vue
+# Optional: raises GitHub REST limit from 60 to 5000 requests/hour.
+github_token: ""
+# Fill in missing window gains from OSSInsight star history.
+enable_ossinsight_estimate: true
+# Report destination (relative to project root).
+output_dir: output
