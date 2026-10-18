@@ -47,14 +47,25 @@ during manual analysis. Ranking logic and data sources are already validated.
 
 1. A repository's 30-day gain comes from Trending monthly when available; otherwise it is
    estimated as `history(last) - history(first)` over the window and flagged `估算`.
-2. An estimate is **discarded** (set to null) when it cannot be computed (fewer than 2 data
-   points) or when it exceeds the repository's total star count — this catches the
-   `apache/predictionio` class of dirty data.
+2. An estimate is **discarded** (set to null, source `dropped`) when it cannot be
+   computed (fewer than 2 data points) or when it exceeds **110%** of the
+   repository's total star count. The 10% tolerance admits legitimate star churn on
+   newly viral repositories (e.g. `morluto/rea`, estimate 305,193 vs total 303,026)
+   while still rejecting dirty data (`apache/predictionio`, 14,413 vs 12,515).
+   Official Trending figures are never discarded.
 3. Estimates that land near/above the ranking cutoff are revalidated with a per-day query
    (`per=day`) rather than `per=week`.
 4. Ranked output = repositories with a non-null 30-day gain, sorted descending, truncated to
    `top_n`. Rows below the cut are still kept in the archived JSON for context.
 5. Every row records its source: `trending` (官方) / `est-day` / `est-week` (估算) / `dropped`.
+
+Two behaviours the implemented pipeline settled on, recorded here so the spec matches
+the code: an estimate with **no total star count to check against** (`stars == 0`) is
+dropped as unverifiable — the margin rule is the only guard, so an unchecked number
+must not reach the report. Official Trending figures are never dropped, totals or not.
+An **empty** OSSInsight series is treated as `est-failed`, exactly like a fetch
+failure: it can only exclude a repository that gained nothing, never promote a wrong
+one.
 
 ## 4. Architecture
 
@@ -71,7 +82,7 @@ config.yaml ─┐
              │                 │
              │            estimate.py ◄── OSSInsight (cached, resumable)
              │                 │
-             │            validation (est>total drop, per-day revalidation)
+             │            validation (est > 110% of total dropped, per-day revalidation)
              │                 │
              └── render ─► report.py ──► output/rank_YYYY-MM-DD.md
                                           data/results/rank_YYYY-MM-DD.json
@@ -131,7 +142,7 @@ python run.py --config path/to/config.yaml
 - `test_parse.py` — parse real Trending HTML samples committed under `data/samples/`
   (daily/weekly/monthly fixtures); assert repo id, gains, stars extracted correctly.
 - `test_merge.py` — precedence (trending beats estimate), discard rule for
-  `est > total`, sort order, `top_n` truncation, source flagging.
+  `est > 110% of total`, sort order, `top_n` truncation, source flagging.
 - `test_config.py` — defaults load, invalid key/type rejected.
 
 ## 9. Repository layout
