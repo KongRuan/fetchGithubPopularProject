@@ -215,3 +215,49 @@ def test_fill_marks_failure_when_fetch_gives_up(monkeypatch):
                        history=failing_history, cache=None, day="2026-10-18")
     assert records["down/repo"]["m30"] is None
     assert records["down/repo"]["source"] == "est-failed"
+
+
+def test_empty_series_is_est_failed_and_leaves_m30_none():
+    """An unindexed repo yields zero rows; it must not become a fabricated +0."""
+    records = {"new/repo": _rec("new/repo")}
+    est.fill_estimates(records, period_days=30, enable=True,
+                       date_from=date(2026, 9, 18), date_to=date(2026, 10, 18),
+                       history=lambda *a: [], cache=None, day="2026-10-18")
+    assert records["new/repo"]["m30"] is None
+    assert records["new/repo"]["source"] == "est-failed"
+
+
+def test_rank_returns_live_references_into_records():
+    """cli.step_merge polices revalidated estimates with a second
+    apply_sanity_rules(records) pass; that only reaches the top list because
+    rank hands back the very same dict objects."""
+    from src.rank.merge import rank
+
+    recs = {"a/b": _rec("a/b", m30=10), "c/d": _rec("c/d", m30=5)}
+    top, rest = rank(recs, top_n=1)
+    assert top[0] is recs["a/b"]
+    assert rest[0] is recs["c/d"]
+
+
+def test_revalidated_estimate_past_the_margin_is_dropped_end_to_end():
+    """revalidate does not police the margin itself - the pipeline's second
+    apply_sanity_rules pass does. Pin that contract so it can't silently rot."""
+    from src.rank.merge import SOURCE_DROPPED, apply_sanity_rules
+
+    rec = _rec("hot/repo", m30=500, source="est-week")
+    rec["stars"] = 1000
+    records = {"hot/repo": rec}
+
+    def fake_history(owner, name, period, date_from, date_to, cache, day):
+        return [{"date": "a", "stargazers": "0"},
+                {"date": "b", "stargazers": "2000"}]
+
+    est.revalidate([rec], date_from=date(2026, 9, 18),
+                   date_to=date(2026, 10, 18), history=fake_history,
+                   cache=None, day="2026-10-18")
+    assert rec["m30"] == 2000
+    assert rec["source"] == "est-day"
+
+    apply_sanity_rules(records)
+    assert rec["m30"] is None
+    assert rec["source"] == SOURCE_DROPPED

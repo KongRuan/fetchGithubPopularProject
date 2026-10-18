@@ -99,17 +99,22 @@ def fetch_history(
             response.raise_for_status()
             rows = (response.json().get("data") or {}).get("rows") or []
             break
-        except Exception as exc:  # noqa: BLE001 - retry on any transport/HTTP error
+        except (requests.RequestException, OSError, ValueError) as exc:
+            # Narrow on purpose: transport/HTTP trouble and a malformed JSON
+            # body are retryable. Anything else is a programming error and
+            # must surface immediately rather than be retried and rebranded
+            # as a network failure.
             last = exc
-            log.warning("history attempt %d/%d failed for %s/%s: %s",
-                        attempt, retries, owner, name, exc)
+            log.warning("history attempt %d/%d failed for %s/%s: %s: %s",
+                        attempt, retries, owner, name, type(exc).__name__, exc)
             if attempt < retries:
                 sleep(delay)
                 delay *= 2
     else:
         raise FetchError(
-            f"GET {url} failed after {retries} attempts: {last}"
-        )
+            f"GET {url} failed after {retries} attempts: "
+            f"{type(last).__name__}: {last}"
+        ) from last
 
     if cache is not None:
         cache.write_json(key, rows)
@@ -133,6 +138,12 @@ def fill_estimates(records: dict, *, period_days: int, enable: bool,
 
     Mutates records in place. Failures are recorded as ``est-failed`` and
     never abort the run — one bad repository must not kill a ~180-repo batch.
+
+    An empty series is treated exactly like a fetch failure. That is
+    deliberate: a repo OSSInsight has not indexed yet cannot produce a delta
+    either, and the conservative outcome (no rank, rather than a fabricated
+    +0) can only ever exclude a repository that gained nothing. It cannot
+    promote a wrong one.
     """
     if not enable:
         return
