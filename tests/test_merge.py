@@ -73,3 +73,37 @@ def test_rank_breaks_ties_by_repo_name():
 
 def test_margin_constant_is_documented():
     assert ESTIMATE_MARGIN == 1.10
+
+
+def test_margin_boundary_is_exclusive():
+    """1100/1000 must be kept and 1101/1000 dropped: `>`, not `>=`."""
+    recs = {
+        "exact": _row("exact", stars=1000, m30=1100),
+        "over": _row("over", stars=1000, m30=1101),
+        "under": _row("under", stars=1000, m30=1099),
+    }
+    for rec in recs.values():
+        rec["source"] = "est-week"
+    apply_sanity_rules(recs)
+    assert recs["exact"]["m30"] == 1100
+    assert recs["under"]["m30"] == 1099
+    assert recs["over"]["m30"] is None
+    assert recs["over"]["source"] == "dropped"
+
+
+def test_estimate_without_a_total_is_unverifiable_and_dropped():
+    """With stars==0 the margin rule has nothing to check against, so the
+    estimate must not reach the report unvalidated."""
+    recs = {"no_total": _row("no_total", stars=0, m30=999999)}
+    recs["no_total"]["source"] = "est-week"
+    apply_sanity_rules(recs)
+    assert recs["no_total"]["m30"] is None
+    assert recs["no_total"]["source"] == "dropped"
+
+
+def test_official_figure_without_a_total_is_still_kept():
+    """Official Trending figures are data of record, totals or not."""
+    recs = {"official": _row("official", stars=0, m30=500)}
+    recs["official"]["source"] = "trending"
+    apply_sanity_rules(recs)
+    assert recs["official"]["m30"] == 500

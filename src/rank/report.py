@@ -23,7 +23,9 @@ def _gain(value) -> str:
 
 
 def _cell(text: str) -> str:
-    return (text or "").replace("|", "\\|").replace("\n", " ").strip()
+    # Repo descriptions are arbitrary user text: an unescaped `|` would split
+    # the row, and a stray CR/LF would break the table line.
+    return (text or "").replace("|", "\\|").replace("\r", " ").replace("\n", " ").strip()
 
 
 def render_markdown(
@@ -53,7 +55,7 @@ def render_markdown(
     for index, rec in enumerate(top, start=1):
         repo = rec["repo"]
         lines.append(
-            f"| {index} | **{repo}** "
+            f"| {index} | **[{repo}](https://github.com/{repo})** "
             f"| {_gain(rec['m30'])} "
             f"| {_num(rec['stars'])} "
             f"| {_gain(rec['w7'])} "

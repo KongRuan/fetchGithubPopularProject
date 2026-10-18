@@ -3,8 +3,6 @@ from __future__ import annotations
 
 from typing import Iterable
 
-FIELDS = ("repo", "stars", "m30", "w7", "d1", "desc", "lang", "source")
-
 #: Estimates may exceed the current total only by star churn; anything larger
 #: is dirty data (see spec amendment: predictionio vs rea).
 ESTIMATE_MARGIN = 1.10
@@ -37,7 +35,8 @@ def merge_records(pages: Iterable[list[dict]]) -> dict[str, dict]:
 
     Gain fields keep the largest value seen (the same window reported by two
     pages should agree; taking max makes the result independent of fetch order).
-    ``stars``/``desc``/``lang`` fill with the first non-empty value.
+    ``stars`` likewise keeps the largest non-zero value, while ``desc`` and
+    ``lang`` fill with the first non-empty value.
     """
     records: dict[str, dict] = {}
     for page in pages:
@@ -62,15 +61,19 @@ def apply_sanity_rules(records: dict[str, dict]) -> None:
     """Discard estimates that cannot be reconciled with the total star count.
 
     Official Trending figures are data of record and are never discarded.
+    An estimate with no total to check against is dropped too: the margin rule
+    is the only thing standing between an unchecked number and the report, so
+    silently skipping it would make the rule a no-op for that repository.
     Mutates records in place.
     """
     for rec in records.values():
         gain = rec.get("m30")
-        total = rec.get("stars") or 0
-        if gain is None or not total:
+        if gain is None:
             continue
-        is_estimate = str(rec.get("source", "")).startswith("est-")
-        if is_estimate and gain > total * ESTIMATE_MARGIN:
+        if not str(rec.get("source", "")).startswith("est-"):
+            continue
+        total = rec.get("stars") or 0
+        if not total or gain > total * ESTIMATE_MARGIN:
             rec["m30"] = None
             rec["source"] = SOURCE_DROPPED
 
