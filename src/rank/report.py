@@ -14,12 +14,14 @@ SOURCE_LABEL = {
 RUNNERS_UP = 5
 
 
-def _num(value) -> str:
+def _num(value: int | None) -> str:
     return "—" if value is None else f"{value:,}"
 
 
-def _gain(value) -> str:
-    return "—" if value is None else f"+{value:,}"
+def _gain(value: int | None) -> str:
+    # `+` must come from the format spec: a negative estimate (a repo that
+    # lost stars over the window) would otherwise render as "+-5,000".
+    return "—" if value is None else f"{value:+,}"
 
 
 def _cell(text: str) -> str:
@@ -38,6 +40,7 @@ def render_markdown(
     run_date: date,
     window: tuple[str, str],
 ) -> str:
+    """Render the ranked records as a self-contained Chinese Markdown report."""
     date_from, date_to = window
     lines: list[str] = [
         f"# GitHub 新增 Star 榜单（近 {period_days} 天）",
@@ -78,7 +81,8 @@ def render_markdown(
         "- **官方**：GitHub Trending 页面公布的 `stars this month`，",
         "  取全球榜与各语言榜的并集，为权威值。",
         "- **估算**：Trending 未覆盖的仓库，用 OSSInsight 星标历史按天差值补算，",
-        "  误差约 ±5%；仅当估算值超过总星标的 10% 时判定为脏数据并剔除。",
+        "  误差约 ±5%；仅当估算值比总星标高出 10% 以上（即超过总星标的 110%）时，",
+        "  判定为脏数据并剔除。官方值不受此规则影响。",
         "- 排序键为 30 天新增 star 数，7 天新增仅作参考列。",
         "",
     ]
