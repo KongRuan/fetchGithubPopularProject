@@ -1,0 +1,280 @@
+{
+  "run_date": "2026-10-18",
+  "period_days": 30,
+  "mode": "growth",
+  "top": [
+    {
+      "repo": "storytold/artcraft",
+      "stars": 31917,
+      "m30": 31029,
+      "w7": 18479,
+      "d1": null,
+      "desc": "ArtCraft is an intentional crafting engine for artists, designers, and filmmakers",
+      "lang": "Rust",
+      "source": "est-day",
+      "desc_zh": "ArtCraft是一个为艺术家、设计师和电影制片人打造的意图创作引擎。"
+    },
+    {
+      "repo": "DuarteSantos8/openGym",
+      "stars": 13219,
+      "m30": 12161,
+      "w7": 4041,
+      "d1": null,
+      "desc": "Self-hosted gym & body-weight tracker — plan routines, log workouts (supersets, warm-ups, cardio), see which muscles are trained, fatigued or detrained, import from FitNotes/Strong/Hevy, passkey login. Your data, your server.",
+      "lang": "JavaScript",
+      "source": "trending",
+      "desc_zh": "自托管的健身与自身体重追踪器——计划锻炼、记录训练（超级组、热身、有氧），查看哪些肌肉被训练、疲劳或退化，从FitNotes/Strong/Hevy导入，密码登录。你的数据，你的服务器。"
+    },
+    {
+      "repo": "lexmount/moli",
+      "stars": 19301,
+      "m30": 17501,
+      "w7": null,
+      "d1": null,
+      "desc": "Best headless browser for AI agents. Lite, Fast, High-Compatibility. Built in Rust",
+      "lang": "Rust",
+      "source": "trending",
+      "desc_zh": "最适合 AI 代理的无头浏览器。轻量、快速、高兼容。使用 Rust 构建。"
+    },
+    {
+      "repo": "michael-denyer/pstack-claude",
+      "stars": 2817,
+      "m30": 2300,
+      "w7": 990,
+      "d1": 118,
+      "desc": "Claude Code, Codex, Copilot, Pi, OpenCode, Gemini, and Prime Agent versions of Poteto's pstack. Rigorous agent workflows with Cursor primitives translated for other harnesses.",
+      "lang": "JavaScript",
+      "source": "trending",
+      "desc_zh": "Poteto 的 pstack 的 Claude Code、Codex、Copilot、Pi、OpenCode、Gemini 和 Prime Agent 版本。针对其他框架翻译的 Cursor 原语的严格代理工作流。"
+    },
+    {
+      "repo": "hydra-db/hydradb",
+      "stars": 13065,
+      "m30": 9995,
+      "w7": null,
+      "d1": null,
+      "desc": "HydraDB - fast graph database on object storage",
+      "lang": "Rust",
+      "source": "trending",
+      "desc_zh": "HydraDB - 基于对象存储的快速图数据库"
+    },
+    {
+      "repo": "superdesigndev/treg",
+      "stars": 5697,
+      "m30": 4110,
+      "w7": null,
+      "d1": null,
+      "desc": "OpenRouter for agent tools. Join community here: https://discord.gg/6mQYYfFMAn",
+      "lang": "Python",
+      "source": "trending",
+      "desc_zh": "用于代理工具的 OpenRouter。加入社区： https://discord.gg/6mQYYfFMAn"
+    },
+    {
+      "repo": "cloudflare/security-audit-skill",
+      "stars": 30766,
+      "m30": 22054,
+      "w7": null,
+      "d1": null,
+      "desc": "A coding-agent skill for multi-phase security audits with independently verified, machine-readable findings",
+      "lang": "JavaScript",
+      "source": "trending",
+      "desc_zh": "用于多阶段安全审计的编码代理技能，具有独立验证的机器可读结果。"
+    },
+    {
+      "repo": "pablostanley/yoinks",
+      "stars": 5993,
+      "m30": 4292,
+      "w7": null,
+      "d1": null,
+      "desc": "yoink any video from your terminal. no shady ads.",
+      "lang": "TypeScript",
+      "source": "trending",
+      "desc_zh": "从终端轻松获取任何视频，无恶意广告。"
+    },
+    {
+      "repo": "xerj-org/xerj",
+      "stars": 7930,
+      "m30": 5572,
+      "w7": 4277,
+      "d1": 1160,
+      "desc": "XERJ is the new way for AI to search data. Its autoindex capability activates agents to know your data without the token waste of grep (1974 tool). One command indexes code, docs, logs and PDFs for search, RAG, security audits and agent memory, using 40x fewer tokens than grep. It’s durable and can replace ElasticSearch saving you x10 infra costs.",
+      "lang": "Rust",
+      "source": "est-week",
+      "desc_zh": "XERJ 是 AI 搜索数据的新方式。其自动索引功能可使代理了解您的数据，而无需像 grep（1974 工具）那样浪费令牌。一个命令便可索引代码、文档、日志和 PDF 以便搜索、RAG、安全审计和代理内存，使用的令牌比 grep 少 40 倍。它耐用，可以替代 ElasticSearch，从而节省十倍的基础设施成本。"
+    },
+    {
+      "repo": "TencentCloud/Octop",
+      "stars": 9797,
+      "m30": 6631,
+      "w7": null,
+      "d1": null,
+      "desc": "A smarter, self-hosted AI assistant — multi-user, multi-agent.",
+      "lang": "Python",
+      "source": "trending",
+      "desc_zh": "一个更智能的自托管 AI 助手 — 多用户，多代理。"
+    },
+    {
+      "repo": "agent-substrate/substrate",
+      "stars": 5433,
+      "m30": 3487,
+      "w7": null,
+      "d1": null,
+      "desc": "Agent Substrate: the core system",
+      "lang": "Go",
+      "source": "trending",
+      "desc_zh": "Agent Substrate：核心系统"
+    },
+    {
+      "repo": "kushagrasinghx/BitChord",
+      "stars": 3468,
+      "m30": 2217,
+      "w7": 648,
+      "d1": 90,
+      "desc": "BitChord - A modern YouTube music client with clean aesthetics inspired from Apple Music",
+      "lang": "Kotlin",
+      "source": "trending",
+      "desc_zh": "BitChord - 一个现代的YouTube音乐客户端，界面设计灵感来源于Apple Music。"
+    },
+    {
+      "repo": "chthollyphile/folia-major",
+      "stars": 7695,
+      "m30": 4672,
+      "w7": 3242,
+      "d1": 540,
+      "desc": "专注于绚丽的歌词动画效果的本地音乐/navidrome/第三方多平台在线音乐播放器",
+      "lang": "TypeScript",
+      "source": "est-week",
+      "desc_zh": "专注于绚丽的歌词动画效果的本地音乐/navidrome/第三方多平台在线音乐播放器。"
+    },
+    {
+      "repo": "changexbc/workbuddy-switch",
+      "stars": 1371,
+      "m30": 805,
+      "w7": null,
+      "d1": null,
+      "desc": "WorkBuddy、CodeBuddy 账号切换，支持积分到期监控、积分统计与 Token 统计，agent 状态悬浮窗。",
+      "lang": "Rust",
+      "source": "trending",
+      "desc_zh": "WorkBuddy、CodeBuddy 账号切换，支持积分到期监控、积分统计与 Token 统计，agent 状态悬浮窗。"
+    },
+    {
+      "repo": "xtool-org/xtool",
+      "stars": 12378,
+      "m30": 6954,
+      "w7": 5783,
+      "d1": null,
+      "desc": "Cross-platform Xcode replacement. Build and deploy iOS apps with SwiftPM on Linux, Windows, macOS.",
+      "lang": "Swift",
+      "source": "est-week",
+      "desc_zh": "跨平台的 Xcode 替代品。在 Linux、Windows 和 macOS 上使用 SwiftPM 构建和部署 iOS 应用。"
+    },
+    {
+      "repo": "yyjeqhc/webcodex",
+      "stars": 2345,
+      "m30": 1302,
+      "w7": null,
+      "d1": null,
+      "desc": "Give cloud AI agents a real development environment on your own machines.",
+      "lang": "Rust",
+      "source": "trending",
+      "desc_zh": "在自己的机器上为云 AI 代理提供真实的开发环境。"
+    },
+    {
+      "repo": "debpalash/VoiceStudio",
+      "stars": 73673,
+      "m30": 40333,
+      "w7": 15911,
+      "d1": 2125,
+      "desc": "VoiceStudio is the open-source, fully-local ElevenLabs alternative — voice cloning, voice design, video dubbing, dictation, transcription & audiobook creation in 646 languages.",
+      "lang": "Python",
+      "source": "trending",
+      "desc_zh": "VoiceStudio 是开源的、完全本地化的 ElevenLabs 替代品——支持646种语言的声音克隆、声音设计、视频配音、听写、转录和有声书制作。"
+    },
+    {
+      "repo": "YuKongA/ghostlock-app",
+      "stars": 2040,
+      "m30": 1113,
+      "w7": 268,
+      "d1": null,
+      "desc": "GhostLock One-Tap Execution App (CVE-2026-43499)",
+      "lang": "Kotlin",
+      "source": "trending",
+      "desc_zh": "GhostLock一键执行应用程序 (CVE-2026-43499)"
+    },
+    {
+      "repo": "microsoft/mxc",
+      "stars": 2899,
+      "m30": 1565,
+      "w7": null,
+      "d1": null,
+      "desc": "Policy-driven, layered isolation and containment",
+      "lang": "Rust",
+      "source": "trending",
+      "desc_zh": "基于策略的分层隔离和封闭"
+    },
+    {
+      "repo": "vectorize-io/hindsight",
+      "stars": 50924,
+      "m30": 27228,
+      "w7": null,
+      "d1": null,
+      "desc": "Hindsight: Agent Memory That Learns",
+      "lang": "Python",
+      "source": "trending",
+      "desc_zh": "Hindsight: 学习的智能体记忆"
+    }
+  ],
+  "runners_up": [
+    {
+      "repo": "ifixai-ai/iFixAi",
+      "stars": 29166,
+      "m30": 15200,
+      "w7": 6895,
+      "d1": null,
+      "desc": "Independent Auditing of AI Agents. Run by human or the agent itself, to answer the most crucial question in the AI Agent Economy. Is the agent doing what is supposed to do? With iFixAi you can have this answer in less than 120 seconds.",
+      "lang": "Python",
+      "source": "est-day"
+    },
+    {
+      "repo": "zeronsh/zeron",
+      "stars": 3287,
+      "m30": 1695,
+      "w7": null,
+      "d1": null,
+      "desc": "A native control plane for Claude Code, Codex, Cursor, Devin and other coding agents.",
+      "lang": "Rust",
+      "source": "trending"
+    },
+    {
+      "repo": "liandu2024/Open-Box",
+      "stars": 2192,
+      "m30": 1113,
+      "w7": null,
+      "d1": null,
+      "desc": "Open-Box 一体化透明代理：OpenWrt / Debian / Ubuntu / Docker；自有程序闭源，第三方组件遵守原许可。",
+      "lang": "Shell",
+      "source": "trending"
+    },
+    {
+      "repo": "jithin-sabu/purge-app",
+      "stars": 1268,
+      "m30": 627,
+      "w7": null,
+      "d1": null,
+      "desc": "Free up your Mac. Safely. A free, open-source native Mac app that clears the cache and junk your Mac piles up on its own. Files go to the Trash by default, so you can put them back.",
+      "lang": "Swift",
+      "source": "trending"
+    },
+    {
+      "repo": "NVIDIA/OpenShell",
+      "stars": 16554,
+      "m30": 7956,
+      "w7": null,
+      "d1": null,
+      "desc": "OpenShell is the safe, private runtime for autonomous AI agents.",
+      "lang": "Rust",
+      "source": "trending"
+    }
+  ],
+  "scanned": 886
+}

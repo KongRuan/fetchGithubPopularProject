@@ -28,6 +28,7 @@ from .fetch import TrendingFetcher
 from .merge import apply_sanity_rules, merge_records, rank, rank_by_growth
 from .parse import parse_trending_html
 from .report import render_markdown
+from .translate import fill_chinese_summaries
 
 log = logging.getLogger(__name__)
 
@@ -143,6 +144,11 @@ def step_render(settings: Settings, cache: Cache, today: date,
     if not top:
         log.error("no repositories have a %s-day gain", settings.period_days)
         return 1
+    day = run_date.isoformat()
+    if settings.enable_chinese_summary:
+        # Only the ranked rows reach the report, so only they are worth a
+        # model call; results are cached per day, so a re-render is free.
+        fill_chinese_summaries(top, cache=cache, day=day)
     date_from, date_to = _window(settings, run_date)
     report = render_markdown(
         top, rest,
@@ -153,7 +159,6 @@ def step_render(settings: Settings, cache: Cache, today: date,
         window=(date_from.isoformat(), date_to.isoformat()),
         growth=growth,
     )
-    day = run_date.isoformat()
     settings.output_path.mkdir(parents=True, exist_ok=True)
     prefix = "rank_fastest_" if growth else "rank_"
     report_path = settings.output_path / f"{prefix}{day}.md"

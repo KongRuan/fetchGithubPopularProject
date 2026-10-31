@@ -66,12 +66,12 @@ def render_markdown(
         "## 榜单",
         "",
         ("| # | 项目 | "
-         f"{period_days}天新增 | 提升幅度 | 总星标 | 7天新增 | 语言 | 说明 | 来源 |"
-         "\n|---:|---|---:|---:|---:|---:|---|---|---|"
+         f"{period_days}天新增 | 提升幅度 | 总星标 | 7天新增 | 语言 | 说明 | 中文说明 | 来源 |"
+         "\n|---:|---|---:|---:|---:|---:|---|---|---|---|"
          if growth else
          "| # | 项目 | "
-         f"{period_days}天新增 | 总星标 | 7天新增 | 语言 | 说明 | 来源 |"
-         "|---:|---|---:|---:|---:|---|---|---|"),
+         f"{period_days}天新增 | 总星标 | 7天新增 | 语言 | 说明 | 中文说明 | 来源 |"
+         "\n|---:|---|---:|---:|---:|---|---|---|---|"),
     ]
     for index, rec in enumerate(top, start=1):
         repo = rec["repo"]
@@ -84,6 +84,7 @@ def render_markdown(
             f"| {_gain(rec['w7'])} "
             f"| {_cell(rec['lang'])} "
             f"| {_cell(rec['desc'])} "
+            f"| {_cell(rec.get('desc_zh') or '')} "
             f"| {SOURCE_LABEL.get(rec['source'], rec['source'])} |"
         )
 

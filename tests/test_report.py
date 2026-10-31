@@ -23,11 +23,11 @@ def test_report_contains_header_table_and_citations():
     assert "# GitHub 新增 Star 榜单（近 30 天）" in md
     assert (
         "| 1 | **[octo/one](https://github.com/octo/one)** "
-        "| +5,000 | 9,000 | +700 | Python | 第一个 | 官方 |" in md
+        "| +5,000 | 9,000 | +700 | Python | 第一个 |  | 官方 |" in md
     )
     assert (
         "| 2 | **[octo/two](https://github.com/octo/two)** "
-        "| +4,000 | 12,000 | — | Go |  | 估算 |" in md
+        "| +4,000 | 12,000 | — | Go |  |  | 估算 |" in md
     )
     assert "估算" in md                       # source flag rendered
     assert "共扫描 123 个仓库" in md

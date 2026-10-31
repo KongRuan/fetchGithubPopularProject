@@ -42,5 +42,7 @@ languages:
 github_token: ""
 # Fill in missing window gains from OSSInsight star history.
 enable_ossinsight_estimate: true
+# 为榜单补一段中文一句话简介（走本地 Codex 接口，失败自动回退英文）。
+enable_chinese_summary: true
 # Report destination (relative to project root).
 output_dir: output

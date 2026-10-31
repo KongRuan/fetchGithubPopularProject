@@ -105,6 +105,45 @@ def test_growth_render_writes_separate_report(tmp_path, monkeypatch):
     assert not (tmp_path / "output" / "rank_2026-10-18.md").exists()
 
 
+def test_render_chinese_summary_uses_the_model(tmp_path, monkeypatch):
+    """`render` asks the local model for a Chinese summary per ranked repo
+    and caches it, so a second render makes no further calls."""
+    cfg = _write_config(tmp_path)
+    cache_dir = tmp_path / "data" / "cache" / "pages" / "2026-10-18"
+    cache_dir.mkdir(parents=True)
+    (cache_dir / "trending_monthly_all.html").write_text(
+        (SAMPLES / "trending_monthly.html").read_text(encoding="utf-8"),
+        encoding="utf-8")
+
+    calls = []
+
+    def fake_post(url, json=None, headers=None, timeout=None):
+        calls.append(json["input"])
+
+        class R:
+            status_code = 200
+
+            @staticmethod
+            def raise_for_status():
+                pass
+
+            @staticmethod
+            def json():
+                return {"output": [{"content": [{"type": "output_text",
+                                                 "text": "中文简介"}]}]}
+
+        return R()
+
+    monkeypatch.setattr("src.rank.translate.requests.Session.post",
+                        lambda self, url, **kw: fake_post(url, **kw))
+    monkeypatch.setattr(cli, "_today", lambda: date(2026, 10, 18))
+    assert cli.main(["--config", str(cfg), "merge"]) == 0
+    assert cli.main(["--config", str(cfg), "render"]) == 0
+    assert calls, "the model must be called for the ranked repos"
+    text = (tmp_path / "output" / "rank_2026-10-18.md").read_text(encoding="utf-8")
+    assert "中文简介" in text
+
+
 def test_render_uses_the_merge_date_not_today(tmp_path, monkeypatch):
     """A render days after the merge must be labelled with the data's date,
     not the day the report happened to be written."""

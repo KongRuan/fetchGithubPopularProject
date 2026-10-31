@@ -1,6 +1,7 @@
 {
   "run_date": "2026-10-18",
   "period_days": 30,
+  "mode": "absolute",
   "top": [
     {
       "repo": "morluto/rea",
@@ -10,7 +11,8 @@
       "d1": null,
       "desc": "Reverse engineer anything with agents, from app behavior down to native binaries.",
       "lang": "TypeScript",
-      "source": "est-day"
+      "source": "est-day",
+      "desc_zh": "使用代理逆向工程任何事物，从应用行为到原生二进制文件。"
     },
     {
       "repo": "boykopovar/AnyPS5",
@@ -20,7 +22,8 @@
       "d1": null,
       "desc": "Tool for automatic PS5 executables porting to Linux and Windows",
       "lang": "C++",
-      "source": "est-day"
+      "source": "est-day",
+      "desc_zh": "用于将 PS5 可执行文件自动移植到 Linux 和 Windows 的工具"
     },
     {
       "repo": "debpalash/VoiceStudio",
@@ -30,7 +33,8 @@
       "d1": 2125,
       "desc": "VoiceStudio is the open-source, fully-local ElevenLabs alternative — voice cloning, voice design, video dubbing, dictation, transcription & audiobook creation in 646 languages.",
       "lang": "Python",
-      "source": "trending"
+      "source": "trending",
+      "desc_zh": "VoiceStudio 是开源的、完全本地化的 ElevenLabs 替代品——支持646种语言的声音克隆、声音设计、视频配音、听写、转录和有声书制作。"
     },
     {
       "repo": "mattpocock/skills",
@@ -40,7 +44,8 @@
       "d1": null,
       "desc": "Skills for Real Engineers. Straight from my .agents directory.",
       "lang": "Shell",
-      "source": "est-day"
+      "source": "est-day",
+      "desc_zh": "真实工程师的技能。来自我的 .agents 目录。"
     },
     {
       "repo": "storytold/artcraft",
@@ -50,7 +55,8 @@
       "d1": null,
       "desc": "ArtCraft is an intentional crafting engine for artists, designers, and filmmakers",
       "lang": "Rust",
-      "source": "est-day"
+      "source": "est-day",
+      "desc_zh": "ArtCraft是一个为艺术家、设计师和电影制片人打造的意图创作引擎。"
     },
     {
       "repo": "vectorize-io/hindsight",
@@ -60,7 +66,8 @@
       "d1": null,
       "desc": "Hindsight: Agent Memory That Learns",
       "lang": "Python",
-      "source": "trending"
+      "source": "trending",
+      "desc_zh": "Hindsight: 学习的智能体记忆"
     },
     {
       "repo": "DietrichGebert/ponytail",
@@ -70,7 +77,8 @@
       "d1": 840,
       "desc": "Makes your AI agent think like the laziest senior dev in the room. The best code is the code you never wrote.",
       "lang": "JavaScript",
-      "source": "est-day"
+      "source": "est-day",
+      "desc_zh": "让你的 AI 代理像房间里最懒惰的资深开发者一样思考。最好的代码是你从未编写的代码。"
     },
     {
       "repo": "stablyai/orca",
@@ -80,7 +88,8 @@
       "d1": 830,
       "desc": "Orca is the place for working with a fleet of agents (e.g. Grok Bot, Claude Code). Run any coding agent with your own subscription. Available on desktop, mobile and remote runtime.",
       "lang": "TypeScript",
-      "source": "trending"
+      "source": "trending",
+      "desc_zh": "Orca是用于操作一组代理（例如Grok Bot, Claude Code）的地方。通过您的订阅运行任何编码代理。支持桌面、移动和远程运行时。"
     },
     {
       "repo": "affaan-m/ECC",
@@ -90,7 +99,8 @@
       "d1": 1145,
       "desc": "The agent harness performance optimization system. Skills, instincts, memory, security, and research-first development for Claude Code, Codex, Opencode, Cursor and beyond.",
       "lang": "JavaScript",
-      "source": "trending"
+      "source": "trending",
+      "desc_zh": "智能体利用性能优化系统。针对Claude Code、Codex、Opencode、Cursor等的技能、直觉、记忆、安全性和以研究为先的开发。"
     },
     {
       "repo": "paperclipai/paperclip",
@@ -100,7 +110,8 @@
       "d1": null,
       "desc": "The open-source app everyone uses to manage agents at work",
       "lang": "TypeScript",
-      "source": "trending"
+      "source": "trending",
+      "desc_zh": "人人都在使用的开源应用，用于管理工作中的代理。"
     },
     {
       "repo": "cloudflare/security-audit-skill",
@@ -110,7 +121,8 @@
       "d1": null,
       "desc": "A coding-agent skill for multi-phase security audits with independently verified, machine-readable findings",
       "lang": "JavaScript",
-      "source": "trending"
+      "source": "trending",
+      "desc_zh": "用于多阶段安全审计的编码代理技能，具有独立验证的机器可读结果。"
     },
     {
       "repo": "lexmount/moli",
@@ -120,7 +132,8 @@
       "d1": null,
       "desc": "Best headless browser for AI agents. Lite, Fast, High-Compatibility. Built in Rust",
       "lang": "Rust",
-      "source": "trending"
+      "source": "trending",
+      "desc_zh": "最适合 AI 代理的无头浏览器。轻量、快速、高兼容。使用 Rust 构建。"
     },
     {
       "repo": "Panniantong/Agent-Reach",
@@ -130,7 +143,8 @@
       "d1": null,
       "desc": "Give your AI agent eyes to see the entire internet. Read & search Twitter, Reddit, YouTube, GitHub, Bilibili, XiaoHongShu — one CLI, zero API fees.",
       "lang": "Python",
-      "source": "trending"
+      "source": "trending",
+      "desc_zh": "让你的AI代理拥有观察整个互联网的能力。阅读和搜索Twitter、Reddit、YouTube、GitHub、Bilibili、小红书——一个命令行界面，零API费用。"
     },
     {
       "repo": "cathrynlavery/diagram-design",
@@ -140,7 +154,8 @@
       "d1": null,
       "desc": "Editorial diagram design for Claude Code, Codex, GitHub Copilot, Cursor, Factory Droid, and Pi. 44 diagram types. Self-contained HTML + SVG. No shadows. No Mermaid slop.",
       "lang": "HTML",
-      "source": "est-day"
+      "source": "est-day",
+      "desc_zh": "针对Claude Code、Codex、GitHub Copilot、Cursor、Factory Droid和Pi的编辑图表设计，提供44种图表类型。自包含HTML + SVG，无阴影，无Mermaid杂乱。"
     },
     {
       "repo": "rohitg00/ai-engineering-from-scratch",
@@ -150,7 +165,8 @@
       "d1": null,
       "desc": "Learn AI Engineering! Learn it. Build it. Ship it for others.",
       "lang": "Python",
-      "source": "trending"
+      "source": "trending",
+      "desc_zh": "学习 AI Engineering！学习它，构建它，为他人发布。"
     },
     {
       "repo": "ifixai-ai/iFixAi",
@@ -160,7 +176,8 @@
       "d1": null,
       "desc": "Independent Auditing of AI Agents. Run by human or the agent itself, to answer the most crucial question in the AI Agent Economy. Is the agent doing what is supposed to do? With iFixAi you can have this answer in less than 120 seconds.",
       "lang": "Python",
-      "source": "est-day"
+      "source": "est-day",
+      "desc_zh": "独立审计AI代理。由人类或代理自身运行，以回答AI代理经济中最关键的问题：代理是否在做其应做的事情？使用iFixAi，您可以在不到120秒的时间内得到这个答案。"
     },
     {
       "repo": "heygen-com/hyperframes",
@@ -170,7 +187,8 @@
       "d1": null,
       "desc": "Write HTML. Render video. Built for agents.",
       "lang": "TypeScript",
-      "source": "trending"
+      "source": "trending",
+      "desc_zh": "编写 HTML。渲染视频。为代理而生。"
     },
     {
       "repo": "pbakaus/impeccable",
@@ -180,7 +198,8 @@
       "d1": null,
       "desc": "The design language that makes your AI harness better at design.",
       "lang": "Rust",
-      "source": "trending"
+      "source": "trending",
+      "desc_zh": "使你的 AI 更好地进行设计的设计语言。"
     },
     {
       "repo": "addyosmani/agent-skills",
@@ -190,7 +209,8 @@
       "d1": null,
       "desc": "Production-grade engineering skills for AI coding agents.",
       "lang": "JavaScript",
-      "source": "trending"
+      "source": "trending",
+      "desc_zh": "适用于AI编码代理的生产级工程技能。"
     },
     {
       "repo": "DuarteSantos8/openGym",
@@ -200,7 +220,8 @@
       "d1": null,
       "desc": "Self-hosted gym & body-weight tracker — plan routines, log workouts (supersets, warm-ups, cardio), see which muscles are trained, fatigued or detrained, import from FitNotes/Strong/Hevy, passkey login. Your data, your server.",
       "lang": "JavaScript",
-      "source": "trending"
+      "source": "trending",
+      "desc_zh": "自托管的健身与自身体重追踪器——计划锻炼、记录训练（超级组、热身、有氧），查看哪些肌肉被训练、疲劳或退化，从FitNotes/Strong/Hevy导入，密码登录。你的数据，你的服务器。"
     }
   ],
   "runners_up": [
