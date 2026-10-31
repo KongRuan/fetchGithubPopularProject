@@ -5,6 +5,7 @@ from datetime import date
 from pathlib import Path
 
 from src.rank import cli
+from src.rank.cache import Cache
 
 SAMPLES = Path(__file__).resolve().parents[1] / "data" / "samples"
 
@@ -142,6 +143,48 @@ def test_render_chinese_summary_uses_the_model(tmp_path, monkeypatch):
     assert calls, "the model must be called for the ranked repos"
     text = (tmp_path / "output" / "rank_2026-10-18.md").read_text(encoding="utf-8")
     assert "中文简介" in text
+
+
+def test_skills_step_writes_skill_report(tmp_path, monkeypatch):
+    """`skills` builds a leaderboard from a cached candidate pool, offline."""
+    cfg = _write_config(tmp_path)
+    cache = Cache(tmp_path / "data" / "cache")
+    cache.write_json("skills/2026-10-18/candidates_v2_30d.json", [
+        {"repo": "anthropics/skills", "stars": 185000,
+         "desc": "Public repository for Agent Skills", "lang": "",
+         "created_at": "2025-09-22"},
+        {"repo": "addyosmani/agent-skills", "stars": 110000,
+         "desc": "Production-grade engineering skills", "lang": "JavaScript",
+         "created_at": "2026-02-15"},
+        # not in the merge: a repo created inside the window, stars == gain
+        {"repo": "newbie/skill", "stars": 2500,
+         "desc": "A brand new agent skill", "lang": "Python",
+         "created_at": "2026-10-10"},
+    ])
+    cache.write_json("merged.json", {
+        "merged_on": "2026-10-18",
+        "records": {
+            "anthropics/skills": {
+                "repo": "anthropics/skills", "stars": 185000, "m30": 5000,
+                "w7": 1000, "d1": None, "desc": "Public repository for Agent Skills",
+                "lang": "", "source": "trending",
+            },
+            "addyosmani/agent-skills": {
+                "repo": "addyosmani/agent-skills", "stars": 110000, "m30": 3000,
+                "w7": None, "d1": None, "desc": "Production-grade engineering skills",
+                "lang": "JavaScript", "source": "trending",
+            },
+        },
+    })
+    monkeypatch.setattr(cli, "_today", lambda: date(2026, 10, 18))
+    assert cli.main(["--config", str(cfg), "skills"]) == 0
+
+    out = tmp_path / "output" / "rank_skills_2026-10-18.md"
+    assert out.is_file()
+    text = out.read_text(encoding="utf-8")
+    assert "GitHub AI Skill 榜单" in text
+    assert "anthropics/skills" in text
+    assert "addyosmani/agent-skills" in text
 
 
 def test_render_uses_the_merge_date_not_today(tmp_path, monkeypatch):

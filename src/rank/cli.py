@@ -28,6 +28,7 @@ from .fetch import TrendingFetcher
 from .merge import apply_sanity_rules, merge_records, rank, rank_by_growth
 from .parse import parse_trending_html
 from .report import render_markdown
+from .skills import build_skill_records
 from .translate import fill_chinese_summaries
 
 log = logging.getLogger(__name__)
@@ -180,6 +181,54 @@ def step_render(settings: Settings, cache: Cache, today: date,
     return 0
 
 
+def step_skills(settings: Settings, cache: Cache, today: date) -> int:
+    """Build the AI agent-skill leaderboard.
+
+    The skill pool is searched fresh each day (cached under ``skills/<day>/``);
+    gains come from the same-day Trending merge when available, otherwise from
+    OSSInsight history. The report is written to ``rank_skills_<date>.md``.
+    """
+    day = today.isoformat()
+    records = build_skill_records(settings, cache, day, today)
+    top, rest = rank(records, settings.top_n)
+    if not top:
+        log.error("no skill repositories have a %s-day gain",
+                  settings.period_days)
+        return 1
+    if settings.enable_chinese_summary:
+        fill_chinese_summaries(top, cache=cache, day=day)
+    date_from, date_to = _window(settings, today)
+    report = render_markdown(
+        top, rest,
+        period_days=settings.period_days,
+        top_n=settings.top_n,
+        scanned=len(records),
+        run_date=today,
+        window=(date_from.isoformat(), date_to.isoformat()),
+        growth=False,
+        title="GitHub AI Skill 榜单",
+        skills=True,
+    )
+    settings.output_path.mkdir(parents=True, exist_ok=True)
+    report_path = settings.output_path / f"rank_skills_{day}.md"
+    report_path.write_text(report, encoding="utf-8")
+
+    settings.results_dir.mkdir(parents=True, exist_ok=True)
+    archive = {
+        "run_date": day,
+        "period_days": settings.period_days,
+        "mode": "skills",
+        "top": top,
+        "runners_up": rest[:5],
+        "scanned": len(records),
+    }
+    (settings.results_dir / f"rank_skills_{day}.json").write_text(
+        json.dumps(archive, ensure_ascii=False, indent=2), encoding="utf-8")
+    log.info("wrote %s", report_path)
+    print(report_path)
+    return 0
+
+
 def _today() -> date:
     """Current date; isolated so tests can freeze it."""
     return date.today()
@@ -197,6 +246,7 @@ def build_parser() -> argparse.ArgumentParser:
     for name, help_text in (
         ("fetch", "download GitHub Trending pages"),
         ("merge", "combine pages, estimate missing gains"),
+        ("skills", "build the AI agent-skill leaderboard"),
     ):
         sub.add_parser(name, help=help_text)
     render = sub.add_parser("render", help="write the Markdown report")
@@ -233,6 +283,7 @@ def main(argv: list[str] | None = None) -> int:
         "merge": lambda: step_merge(settings, cache, day, today),
         "render": lambda: step_render(settings, cache, today,
                                       growth=by_growth),
+        "skills": lambda: step_skills(settings, cache, today),
     }
     if args.command:
         return steps[args.command]()

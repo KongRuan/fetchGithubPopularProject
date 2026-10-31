@@ -31,6 +31,12 @@ log = logging.getLogger(__name__)
 
 API = "https://api.ossinsight.io/v1/repos/{owner}/{name}/stargazers/history/"
 DELAY_SECONDS = 0.25
+# The public OSSInsight API started returning 500 (upstream auth failure in
+# late 2026). One bad host must not turn a leaderboard run into a 20-minute
+# retry spiral across hundreds of repositories, so a run that sees nothing
+# but failures stops calling the API at all.
+MAX_CONSECUTIVE_FAILURES = 5
+_global_failures = 0
 
 
 class FetchError(Exception):
@@ -159,8 +165,13 @@ def fill_estimates(records: dict, *, period_days: int, enable: bool,
     if not enable:
         return
     period = "week" if period_days > 7 else "day"
+    global _global_failures
+    _global_failures = 0
     for rec in records.values():
         if rec.get("m30") is not None:
+            continue
+        if _global_failures >= MAX_CONSECUTIVE_FAILURES:
+            rec["source"] = SOURCE_EST_FAILED
             continue
         pair = _owner_name(rec["repo"])
         if pair is None:
@@ -169,7 +180,9 @@ def fill_estimates(records: dict, *, period_days: int, enable: bool,
         owner, name = pair
         try:
             rows = history(owner, name, period, date_from, date_to, cache, day)
+            _global_failures = 0
         except Exception as exc:  # noqa: BLE001 - one repo must not kill the run
+            _global_failures += 1
             log.warning("estimate failed for %s: %s", rec["repo"], exc)
             rec["source"] = SOURCE_EST_FAILED
             continue
@@ -192,16 +205,22 @@ def revalidate(records: list[dict], *, date_from: date, date_to: date,
 
     ``records`` is the ranked top list; entries are updated in place.
     """
+    global _global_failures
+    _global_failures = 0
     for rec in records:
         if not str(rec.get("source", "")).startswith("est-"):
             continue
+        if _global_failures >= MAX_CONSECUTIVE_FAILURES:
+            return
         pair = _owner_name(rec["repo"])
         if pair is None:
             continue
         owner, name = pair
         try:
             rows = history(owner, name, "day", date_from, date_to, cache, day)
+            _global_failures = 0
         except Exception as exc:  # noqa: BLE001 - one repo must not kill the run
+            _global_failures += 1
             log.warning("revalidate failed for %s: %s", rec["repo"], exc)
             continue
         delta = history_delta(rows)

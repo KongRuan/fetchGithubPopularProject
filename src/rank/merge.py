@@ -37,6 +37,12 @@ SOURCE_EST_WEEK = "est-week"
 SOURCE_EST_DAY = "est-day"
 SOURCE_EST_FAILED = "est-failed"
 SOURCE_DROPPED = "dropped"
+#: The skill board's own label: created inside the window, so the repository's
+#: whole star count is its window gain. Never an OSSInsight estimate.
+SOURCE_SEARCH_NEW = "search-new"
+#: Measured locally: today's star total minus a snapshot the tool stored at or
+#: before the window start. The fallback now that OSSInsight is unavailable.
+SOURCE_SNAPSHOT = "snapshot"
 
 _GAIN_FIELDS = ("m30", "w7", "d1")
 

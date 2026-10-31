@@ -15,6 +15,8 @@ SOURCE_LABEL = {
     "est-day": "估算",
     "est-failed": "估算失败",
     "dropped": "已剔除",
+    "search-new": "新星",
+    "snapshot": "本地追踪",
 }
 
 # How many of ``rest`` (ranked, but past top_n) the "紧随其后" section lists.
@@ -53,11 +55,14 @@ def render_markdown(
     run_date: date,
     window: tuple[str, str],
     growth: bool = False,
+    title: str | None = None,
+    skills: bool = False,
 ) -> str:
     """Render the ranked records as a self-contained Chinese Markdown report."""
     date_from, date_to = window
+    heading = title or (GROWTH_RATE_TITLE if growth else "GitHub 新增 Star 榜单")
     lines: list[str] = [
-        f"# {GROWTH_RATE_TITLE if growth else 'GitHub 新增 Star 榜单'}（近 {period_days} 天）",
+        f"# {heading}（近 {period_days} 天）",
         "",
         f"- 报告日期：{run_date.isoformat()}",
         f"- 统计窗口：{date_from} → {date_to}",
@@ -95,19 +100,29 @@ def render_markdown(
                 f"- `{rec['repo']}` — {_gain(rec['m30'])}（总 {_num(rec['stars'])}）"
             )
 
-    lines += [
-        "",
-        "## 数据来源与口径",
-        "",
-        "- **官方**：GitHub Trending 页面公布的 `stars this month`，",
-        "  取全球榜与各语言榜的并集，为权威值。",
-        "- **估算**：Trending 未覆盖的仓库，用 OSSInsight 星标历史按天差值补算，",
-        "  误差约 ±5%；仅当估算值比总星标高出 10% 以上（即超过总星标的 110%）时，",
-        "  判定为脏数据并剔除。官方值不受此规则影响。",
-        ("- 排序键为（新增 star 数 ÷ 窗口期前已有星标），即相对提升速度；"
-         "总星标低于 500 的仓库不参与本榜。7 天新增仅作参考列。"
-         if growth else
-         "- 排序键为 30 天新增 star 数，7 天新增仅作参考列。"),
-        "",
-    ]
+    lines += ["", "## 数据来源与口径", ""]
+    if skills:
+        lines += [
+            "- 收录范围：GitHub 搜索到的 AI 代理技能类仓库"
+            "（agent-skills / claude-skills / codex-skills / cursor-skills 等主题与关键词）。",
+            f"- **新星**：窗口期（近 {period_days} 天）内新建的仓库，"
+            "尚无历史星标，当前总星标即窗口期新增，数值为真实值而非估算。",
+            "- **本地追踪**：更早创建的老仓库，用本工具每日记录的星标快照"
+            "（`data/cache/stars/<日期>.json`）计算窗口期增量；"
+            "尚无窗口起点快照的仓库不计入排名。",
+            f"- 排序键为 {period_days} 天新增 star 数，7 天新增仅作参考列。",
+        ]
+    else:
+        lines += [
+            "- **官方**：GitHub Trending 页面公布的 `stars this month`，",
+            "  取全球榜与各语言榜的并集，为权威值。",
+            "- **估算**：Trending 未覆盖的仓库，用 OSSInsight 星标历史按天差值补算，",
+            "  误差约 ±5%；仅当估算值比总星标高出 10% 以上（即超过总星标的 110%）时，",
+            "  判定为脏数据并剔除。官方值不受此规则影响。",
+            ("- 排序键为（新增 star 数 ÷ 窗口期前已有星标），即相对提升速度；"
+             "总星标低于 500 的仓库不参与本榜。7 天新增仅作参考列。"
+             if growth else
+             "- 排序键为 30 天新增 star 数，7 天新增仅作参考列。"),
+        ]
+    lines.append("")
     return "\n".join(lines)

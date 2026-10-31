@@ -41,6 +41,8 @@ python run.py                 # full pipeline (resumes from cache)
 python run.py fetch           # download Trending pages only
 python run.py merge           # combine pages + estimate missing gains
 python run.py render          # write the report
+python run.py render --by-growth   # fastest-rising board, ranked by relative growth
+python run.py skills          # AI agent-skill leaderboard (see below)
 python run.py --config my.yaml
 python run.py -v              # verbose logging
 ```
@@ -49,6 +51,29 @@ The pipeline is date-scoped: pages fetched today are cached under
 `data/cache/pages/<today>/`, so re-running the same day reuses them and finishes fast.
 A new day fetches fresh data automatically.
 
+## AI Skill 榜单
+
+`python run.py skills` writes `output/rank_skills_<date>.md`: a leaderboard of AI
+coding-agent skill repositories (GitHub Search across the `agent-skills`,
+`claude-skills`, `codex-skills`, `cursor-skills` and `opencode-skills` topics plus
+phrase searches). Each query runs twice — once with `created:>{window start}` — so
+the pool holds both this window's releases and established skill collections.
+
+How a gain is measured, in order:
+
+1. **search-new** (`新星`): the repository was created inside the window, so its
+   current star total *is* its gain — a real number, no estimate.
+2. **snapshot** (`本地追踪`): an older repository measured against the tool's own
+   daily star ledger (`data/cache/stars/<date>.json`). A baseline must come from a
+   reading at or before the window start; otherwise the gain is unknown and the
+   row cannot rank.
+3. **trending** (`官方`): a same-day `merge` wins where it covers the repository.
+
+The ledger is written on every run, so established skill repositories join the
+board automatically once 30 days of readings exist (or 7 if `period_days: 7`).
+Pools and ledger are cached per day under `data/cache/`.
+
+## Tests
 ## Configuration
 
 ```yaml
