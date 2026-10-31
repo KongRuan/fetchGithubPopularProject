@@ -3,6 +3,7 @@ from __future__ import annotations
 
 from datetime import date
 
+from .merge import growth_rate
 # 来源 column. est-week and est-day both render as 估算 on purpose: the report
 # does not distinguish the coarse weekly pass from the daily revalidation.
 # Both are estimates; only "trending" is an official Trending figure.
@@ -18,6 +19,8 @@ SOURCE_LABEL = {
 
 # How many of ``rest`` (ranked, but past top_n) the "紧随其后" section lists.
 RUNNERS_UP = 5
+
+GROWTH_RATE_TITLE = "GitHub 提升最快 Star 榜单"
 
 
 def _num(value: int | None) -> str:
@@ -36,6 +39,10 @@ def _cell(text: str) -> str:
     return (text or "").replace("|", "\\|").replace("\r", " ").replace("\n", " ").strip()
 
 
+def _rate(rec: dict) -> str:
+    return f"+{growth_rate(rec) * 100:.1f}%"
+
+
 def render_markdown(
     top: list[dict],
     rest: list[dict],
@@ -45,11 +52,12 @@ def render_markdown(
     scanned: int,
     run_date: date,
     window: tuple[str, str],
+    growth: bool = False,
 ) -> str:
     """Render the ranked records as a self-contained Chinese Markdown report."""
     date_from, date_to = window
     lines: list[str] = [
-        f"# GitHub 新增 Star 榜单（近 {period_days} 天）",
+        f"# {GROWTH_RATE_TITLE if growth else 'GitHub 新增 Star 榜单'}（近 {period_days} 天）",
         "",
         f"- 报告日期：{run_date.isoformat()}",
         f"- 统计窗口：{date_from} → {date_to}",
@@ -57,15 +65,21 @@ def render_markdown(
         "",
         "## 榜单",
         "",
-        "| # | 项目 | "
-        f"{period_days}天新增 | 总星标 | 7天新增 | 语言 | 说明 | 来源 |",
-        "|---:|---|---:|---:|---:|---|---|---|",
+        ("| # | 项目 | "
+         f"{period_days}天新增 | 提升幅度 | 总星标 | 7天新增 | 语言 | 说明 | 来源 |"
+         "\n|---:|---|---:|---:|---:|---:|---|---|---|"
+         if growth else
+         "| # | 项目 | "
+         f"{period_days}天新增 | 总星标 | 7天新增 | 语言 | 说明 | 来源 |"
+         "|---:|---|---:|---:|---:|---|---|---|"),
     ]
     for index, rec in enumerate(top, start=1):
         repo = rec["repo"]
+        rate_cell = f"| {_rate(rec)} " if growth else ""
         lines.append(
             f"| {index} | **[{repo}](https://github.com/{repo})** "
             f"| {_gain(rec['m30'])} "
+            + rate_cell +
             f"| {_num(rec['stars'])} "
             f"| {_gain(rec['w7'])} "
             f"| {_cell(rec['lang'])} "
@@ -89,7 +103,10 @@ def render_markdown(
         "- **估算**：Trending 未覆盖的仓库，用 OSSInsight 星标历史按天差值补算，",
         "  误差约 ±5%；仅当估算值比总星标高出 10% 以上（即超过总星标的 110%）时，",
         "  判定为脏数据并剔除。官方值不受此规则影响。",
-        "- 排序键为 30 天新增 star 数，7 天新增仅作参考列。",
+        ("- 排序键为（新增 star 数 ÷ 窗口期前已有星标），即相对提升速度；"
+         "总星标低于 500 的仓库不参与本榜。7 天新增仅作参考列。"
+         if growth else
+         "- 排序键为 30 天新增 star 数，7 天新增仅作参考列。"),
         "",
     ]
     return "\n".join(lines)

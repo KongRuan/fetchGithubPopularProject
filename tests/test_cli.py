@@ -84,6 +84,27 @@ def test_full_pipeline_runs_offline_end_to_end(tmp_path, monkeypatch):
     assert (tmp_path / "output" / "rank_2026-10-18.md").is_file()
 
 
+def test_growth_render_writes_separate_report(tmp_path, monkeypatch):
+    """`render --by-growth` ranks by relative gain and writes its own file."""
+    cfg = _write_config(tmp_path)
+    cache_dir = tmp_path / "data" / "cache" / "pages" / "2026-10-18"
+    cache_dir.mkdir(parents=True)
+    (cache_dir / "trending_monthly_all.html").write_text(
+        (SAMPLES / "trending_monthly.html").read_text(encoding="utf-8"),
+        encoding="utf-8")
+
+    monkeypatch.setattr(cli, "_today", lambda: date(2026, 10, 18))
+    assert cli.main(["--config", str(cfg), "merge"]) == 0
+    assert cli.main(["--config", str(cfg), "render", "--by-growth"]) == 0
+
+    out = tmp_path / "output" / "rank_fastest_2026-10-18.md"
+    assert out.is_file()
+    text = out.read_text(encoding="utf-8")
+    assert "提升最快" in text
+    assert "提升幅度" in text
+    assert not (tmp_path / "output" / "rank_2026-10-18.md").exists()
+
+
 def test_render_uses_the_merge_date_not_today(tmp_path, monkeypatch):
     """A render days after the merge must be labelled with the data's date,
     not the day the report happened to be written."""

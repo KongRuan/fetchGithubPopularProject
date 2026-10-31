@@ -111,3 +111,26 @@ def rank(records: dict[str, dict], top_n: int) -> tuple[list[dict], list[dict]]:
     eligible = [r for r in records.values() if r.get("m30") is not None]
     eligible.sort(key=lambda r: (-r["m30"], r["repo"]))
     return eligible[:top_n], eligible[top_n:]
+
+
+MIN_TOTAL_FOR_GROWTH = 500
+
+
+def growth_rate(rec: dict) -> float:
+    """Relative gain: window gain divided by the pre-window star count.
+
+    Below MIN_TOTAL_FOR_GROWTH the prior count is too small for a
+    meaningful rate, so the record cannot rank on this board.
+    """
+    total = rec.get("stars") or 0
+    prior = max(total - (rec.get("m30") or 0), 0)
+    if prior < MIN_TOTAL_FOR_GROWTH:
+        return 0.0
+    return (rec.get("m30") or 0) / prior
+
+
+def rank_by_growth(records: dict[str, dict], top_n: int) -> tuple[list[dict], list[dict]]:
+    """Return ``(top, rest)`` sorted by relative growth (fastest-rising first)."""
+    eligible = [r for r in records.values() if r.get("m30") is not None]
+    eligible.sort(key=lambda r: (-growth_rate(r), -r["m30"], r["repo"]))
+    return eligible[:top_n], eligible[top_n:]

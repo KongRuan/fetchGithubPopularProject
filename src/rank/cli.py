@@ -25,7 +25,7 @@ from .cache import Cache
 from .config import ConfigError, Settings, load_config
 from .fetch import WINDOWS as FETCH_WINDOWS
 from .fetch import TrendingFetcher
-from .merge import apply_sanity_rules, merge_records, rank
+from .merge import apply_sanity_rules, merge_records, rank, rank_by_growth
 from .parse import parse_trending_html
 from .report import render_markdown
 
@@ -118,7 +118,8 @@ def step_merge(settings: Settings, cache: Cache, day: str, today: date) -> int:
     return 0
 
 
-def step_render(settings: Settings, cache: Cache, today: date) -> int:
+def step_render(settings: Settings, cache: Cache, today: date,
+                growth: bool = False) -> int:
     """Write ``output/rank_<merged_on>.md`` and ``data/results/rank_<merged_on>.json``.
 
     Prints the report path on stdout (the only thing a caller should parse);
@@ -137,7 +138,8 @@ def step_render(settings: Settings, cache: Cache, today: date) -> int:
     if run_date != today:
         log.info("report reflects data merged on %s", run_date.isoformat())
 
-    top, rest = rank(records, settings.top_n)
+    top, rest = rank_by_growth(records, settings.top_n) if growth else rank(
+        records, settings.top_n)
     if not top:
         log.error("no repositories have a %s-day gain", settings.period_days)
         return 1
@@ -149,21 +151,24 @@ def step_render(settings: Settings, cache: Cache, today: date) -> int:
         scanned=len(records),
         run_date=run_date,
         window=(date_from.isoformat(), date_to.isoformat()),
+        growth=growth,
     )
     day = run_date.isoformat()
     settings.output_path.mkdir(parents=True, exist_ok=True)
-    report_path = settings.output_path / f"rank_{day}.md"
+    prefix = "rank_fastest_" if growth else "rank_"
+    report_path = settings.output_path / f"{prefix}{day}.md"
     report_path.write_text(report, encoding="utf-8")
 
     settings.results_dir.mkdir(parents=True, exist_ok=True)
     archive = {
         "run_date": day,
         "period_days": settings.period_days,
+        "mode": "growth" if growth else "absolute",
         "top": top,
         "runners_up": rest[:5],
         "scanned": len(records),
     }
-    (settings.results_dir / f"rank_{day}.json").write_text(
+    (settings.results_dir / f"{prefix}{day}.json").write_text(
         json.dumps(archive, ensure_ascii=False, indent=2), encoding="utf-8")
     log.info("wrote %s", report_path)
     print(report_path)
@@ -187,9 +192,13 @@ def build_parser() -> argparse.ArgumentParser:
     for name, help_text in (
         ("fetch", "download GitHub Trending pages"),
         ("merge", "combine pages, estimate missing gains"),
-        ("render", "write the Markdown report"),
     ):
         sub.add_parser(name, help=help_text)
+    render = sub.add_parser("render", help="write the Markdown report")
+    render.add_argument(
+        "--by-growth", action="store_true",
+        help="rank by relative star growth (fastest-rising) instead of raw gain",
+    )
     return parser
 
 
@@ -213,10 +222,12 @@ def main(argv: list[str] | None = None) -> int:
     day = today.isoformat()
     cache = Cache(settings.cache_dir)
 
+    by_growth = getattr(args, "by_growth", False)
     steps = {
         "fetch": lambda: step_fetch(settings, cache, day),
         "merge": lambda: step_merge(settings, cache, day, today),
-        "render": lambda: step_render(settings, cache, today),
+        "render": lambda: step_render(settings, cache, today,
+                                      growth=by_growth),
     }
     if args.command:
         return steps[args.command]()
