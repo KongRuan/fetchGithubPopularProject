@@ -74,7 +74,6 @@ The ledger is written on every run, so established skill repositories join the
 board automatically once 30 days of readings exist (or 7 if `period_days: 7`).
 Pools and ledger are cached per day under `data/cache/`.
 
-## Tests
 ## Configuration
 
 ```yaml
@@ -84,8 +83,33 @@ languages: [...]             # Trending language slugs to scan
 github_token: ""             # optional: GitHub REST star-history requests
 enable_github_history: true  # first choice for missing Trending gains
 enable_ossinsight_estimate: true  # fallback if GitHub history is unavailable
+enable_chinese_summary: true # translate ranked descriptions
 output_dir: output
 ```
+
+Chinese descriptions reuse the same-day cache. To use a cloud translation API,
+set `AZURE_TRANSLATOR_KEY` (and `AZURE_TRANSLATOR_REGION` for regional or
+multi-service resources) for **Azure Translator**, or `GOOGLE_TRANSLATE_API_KEY`
+for **Google Cloud Translation Basic** in the process environment. The order is
+Azure → Google → **MyMemory (anonymous, no registration or API key)** → existing
+local translator (`127.0.0.1:3425`). Without cloud credentials MyMemory is
+tried first, so the report can be translated even when the local model is down.
+MyMemory allows [5,000 characters/day anonymously](https://mymemory.translated.net/doc/usagelimits.php)
+and at most [500 UTF-8 bytes per request](https://mymemory.translated.net/doc/spec.php);
+longer descriptions skip it rather than being truncated. Any provider that
+fails twice is skipped for the rest of that render. Translation failures leave
+the English original in the report; no credentials are written into config or
+cached files. Public descriptions sent to MyMemory are transmitted to a third
+party; disable `enable_chinese_summary` to avoid translation requests.
+
+Azure's [F0 free tier](https://azure.microsoft.com/en-us/pricing/details/cognitive-services/translator/)
+allows 2 million characters/month. Google's [Basic pricing](https://cloud.google.com/translate/pricing)
+includes 500,000 characters/month at no charge, **but requires billing enabled
+and charges beyond the free allowance**. Select the F0 Azure resource or set
+Google quotas/budget alerts if you need to avoid unexpected charges; these APIs
+are not unlimited free services. See the [Azure REST authentication guide](https://learn.microsoft.com/en-us/azure/ai-services/translator/text-translation/reference/authentication)
+and [Google Basic authentication guide](https://docs.cloud.google.com/translate/docs/authentication)
+for setup.
 
 ## Data sources and accuracy
 

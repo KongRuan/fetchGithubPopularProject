@@ -44,7 +44,10 @@ github_token: ""
 enable_github_history: true
 # Use OSSInsight only if GitHub star history cannot cover a window.
 enable_ossinsight_estimate: true
-# 为榜单补一段中文一句话简介（走本地 Codex 接口，失败自动回退英文）。
+# 为榜单翻译简介：Azure / Google（配置凭据时）→ 免登录 MyMemory → 本地接口。
+# 凭据只放环境变量：AZURE_TRANSLATOR_KEY、AZURE_TRANSLATOR_REGION（按需）、
+# GOOGLE_TRANSLATE_API_KEY；MyMemory 无需配置，每日匿名额度 5000 字符。
+# 不希望将公开简介发送第三方时设为 false；全部失败则保留英文。
 enable_chinese_summary: true
 # Report destination (relative to project root).
 output_dir: output

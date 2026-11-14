@@ -4,6 +4,8 @@ import logging
 from datetime import date
 from pathlib import Path
 
+import requests
+
 from src.rank import cli
 from src.rank.cache import Cache
 
@@ -154,6 +156,8 @@ def test_growth_render_writes_separate_report(tmp_path, monkeypatch):
 def test_render_chinese_summary_uses_the_model(tmp_path, monkeypatch):
     """`render` asks the local model for a Chinese summary per ranked repo
     and caches it, so a second render makes no further calls."""
+    monkeypatch.delenv("AZURE_TRANSLATOR_KEY", raising=False)
+    monkeypatch.delenv("GOOGLE_TRANSLATE_API_KEY", raising=False)
     cfg = _write_config(tmp_path)
     cfg.write_text(cfg.read_text(encoding="utf-8").replace(
         "enable_chinese_summary: false", "enable_chinese_summary: true"),
@@ -183,6 +187,9 @@ def test_render_chinese_summary_uses_the_model(tmp_path, monkeypatch):
 
         return R()
 
+    monkeypatch.setattr("src.rank.translate.requests.Session.get",
+                        lambda *args, **kwargs: (_ for _ in ()).throw(
+                            requests.ReadTimeout("MyMemory unavailable")))
     monkeypatch.setattr("src.rank.translate.requests.Session.post",
                         lambda self, url, **kw: fake_post(url, **kw))
     monkeypatch.setattr(cli, "_today", lambda: date(2026, 10, 18))
