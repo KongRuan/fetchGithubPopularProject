@@ -19,7 +19,17 @@ def test_defaults_from_written_config(tmp_path):
     assert s.languages == ("python", "rust")
     assert s.github_token == ""
     assert s.enable_ossinsight_estimate is True
+    assert s.enable_github_history is True
     assert s.trending_period == "monthly"
+
+
+def test_github_history_can_be_disabled_but_not_set_to_a_string(tmp_path):
+    cfg = tmp_path / "config.yaml"
+    cfg.write_text("enable_github_history: false\n", encoding="utf-8")
+    assert load_config(cfg).enable_github_history is False
+    cfg.write_text('enable_github_history: "false"\n', encoding="utf-8")
+    with pytest.raises(ConfigError, match="enable_github_history"):
+        load_config(cfg)
 
 
 def test_rejects_unknown_key(tmp_path):

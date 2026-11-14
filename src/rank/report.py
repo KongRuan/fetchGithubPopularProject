@@ -6,11 +6,13 @@ from datetime import date
 from .merge import growth_rate
 # 来源 column. est-week and est-day both render as 估算 on purpose: the report
 # does not distinguish the coarse weekly pass from the daily revalidation.
-# Both are estimates; only "trending" is an official Trending figure.
+# GitHub history is explicitly labeled too; only "trending" is a published
+# Trending figure.
 # est-failed / dropped normally never reach the table (m30 is None, so rank()
 # excludes them) but the labels stay so a stray row is not shown raw.
 SOURCE_LABEL = {
     "trending": "官方",
+    "est-github": "GitHub 历史",
     "est-week": "估算",
     "est-day": "估算",
     "est-failed": "估算失败",
@@ -116,9 +118,11 @@ def render_markdown(
         lines += [
             "- **官方**：GitHub Trending 页面公布的 `stars this month`，",
             "  取全球榜与各语言榜的并集，为权威值。",
-            "- **估算**：Trending 未覆盖的仓库，用 OSSInsight 星标历史按天差值补算，",
-            "  误差约 ±5%；仅当估算值比总星标高出 10% 以上（即超过总星标的 110%）时，",
-            "  判定为脏数据并剔除。官方值不受此规则影响。",
+            "- **GitHub 历史**：Trending 未覆盖的仓库，优先从 GitHub Star 历史",
+            "  汇总统计窗口内的每日新增；数据缺失或请求失败时才使用 OSSInsight。",
+            "- **估算**：OSSInsight 星标历史的差值，约有 ±5% 误差；",
+            "  当历史计算值超过总星标的 110% 时，判定为脏数据并剔除。",
+            "  官方值不受此规则影响。",
             ("- 排序键为（新增 star 数 ÷ 窗口期前已有星标），即相对提升速度；"
              "总星标低于 500 的仓库不参与本榜。7 天新增仅作参考列。"
              if growth else

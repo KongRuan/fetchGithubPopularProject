@@ -40,7 +40,9 @@ languages:
   - vue
 # Optional: raises GitHub REST limit from 60 to 5000 requests/hour.
 github_token: ""
-# Fill in missing window gains from OSSInsight star history.
+# Use GitHub's daily star history first for missing Trending gains.
+enable_github_history: true
+# Use OSSInsight only if GitHub star history cannot cover a window.
 enable_ossinsight_estimate: true
 # 为榜单补一段中文一句话简介（走本地 Codex 接口，失败自动回退英文）。
 enable_chinese_summary: true

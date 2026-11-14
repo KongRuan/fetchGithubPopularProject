@@ -21,7 +21,7 @@ DEFAULT_LANGUAGES = (
 
 _ALLOWED_KEYS = {
     "period_days", "top_n", "languages", "github_token",
-    "enable_ossinsight_estimate", "output_dir",
+    "enable_ossinsight_estimate", "enable_github_history", "output_dir",
     "enable_chinese_summary",
 }
 
@@ -53,6 +53,7 @@ class Settings:
     languages: tuple[str, ...] = DEFAULT_LANGUAGES
     github_token: str = ""
     enable_ossinsight_estimate: bool = True
+    enable_github_history: bool = True
     enable_chinese_summary: bool = True
     output_dir: str = "output"
 
@@ -117,6 +118,10 @@ def load_config(path: str | Path) -> Settings:
     if not isinstance(estimate, bool):
         raise ConfigError("enable_ossinsight_estimate must be true or false")
 
+    github_history = raw.get("enable_github_history", True)
+    if not isinstance(github_history, bool):
+        raise ConfigError("enable_github_history must be true or false")
+
     chinese_summary = raw.get("enable_chinese_summary", True)
     if not isinstance(chinese_summary, bool):
         raise ConfigError("enable_chinese_summary must be true or false")
@@ -134,6 +139,7 @@ def load_config(path: str | Path) -> Settings:
         languages=languages,
         github_token=token,
         enable_ossinsight_estimate=estimate,
+        enable_github_history=github_history,
         enable_chinese_summary=chinese_summary,
         output_dir=output_dir,
     )

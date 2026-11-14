@@ -59,6 +59,8 @@ def test_methodology_states_the_real_110_percent_rule():
                          window=("2026-09-18", "2026-10-18"))
     assert "超过总星标的 110%" in md
     assert "官方值不受此规则影响" in md
+    assert "GitHub Star 历史" in md
+    assert "OSSInsight" in md
     assert "排序键为 30 天新增 star 数" in md
 
 
@@ -73,7 +75,8 @@ def test_runners_up_is_capped_at_five():
 
 
 def test_source_label_covers_every_known_source_and_falls_back():
-    for source, label in [("trending", "官方"), ("est-week", "估算"),
+    for source, label in [("trending", "官方"), ("est-github", "GitHub 历史"),
+                          ("est-week", "估算"),
                           ("est-day", "估算"), ("est-failed", "估算失败"),
                           ("dropped", "已剔除")]:
         md = render_markdown([_rec("a/b", 10, 20, source=source)], [],

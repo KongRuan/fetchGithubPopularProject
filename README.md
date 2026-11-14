@@ -10,9 +10,9 @@ Markdown report (in Chinese). The default view is "top 20 by stars gained in the
 fetch      GitHub Trending: global page + 33 language pages,
            daily / weekly / monthly windows  ->  data/cache/pages/<date>/
      |
-merge      parse -> dedupe -> fill missing 30-day gains from OSSInsight
-           star history -> drop implausible estimates -> revalidate the
-           entries that make the report using a daily series
+merge      parse -> dedupe -> fill missing gains from GitHub star history,
+           with OSSInsight as fallback -> drop implausible estimates ->
+           revalidate fallback estimates on the report using a daily series
      |
 render     output/rank_<date>.md  +  data/results/rank_<date>.json
 ```
@@ -22,9 +22,10 @@ render     output/rank_<date>.md  +  data/results/rank_<date>.json
 - Python 3.11+ (developed and tested on 3.11).
 - GitHub Trending pages are scraped directly from `github.com/trending` without a
   token — the GitHub API rate limit does not apply to scraping.
-- `github_token` is accepted but currently reserved: the pipeline makes no GitHub
-  REST API calls today. The REST limits (60 requests/hour anonymous, 5,000/hour with
-  a token) would only come into play if/when the tool starts using the REST API.
+- Missing window gains use GitHub's REST star-history API. Set `github_token` for
+  a larger rate limit (typically 5,000 requests/hour vs. 60 anonymous); without
+  a token, rate limiting triggers OSSInsight fallback. Secondary limits may also
+  apply. Trending scraping itself does not consume REST API quota.
 
 ## Install
 
@@ -80,8 +81,9 @@ Pools and ledger are cached per day under `data/cache/`.
 period_days: 30              # 1, 7 or 30 (GitHub Trending granularity)
 top_n: 20                    # rows in the report table
 languages: [...]             # Trending language slugs to scan
-github_token: ""             # optional: reserved for GitHub REST API use
-enable_ossinsight_estimate: true
+github_token: ""             # optional: GitHub REST star-history requests
+enable_github_history: true  # first choice for missing Trending gains
+enable_ossinsight_estimate: true  # fallback if GitHub history is unavailable
 output_dir: output
 ```
 
@@ -91,7 +93,8 @@ output_dir: output
 |---|---|---|
 | GitHub Trending `stars this month` | official 30-day gain | authoritative |
 | GitHub Trending `stars this week` | official 7-day gain | reference column |
-| OSSInsight `stargazers/history` | estimated gain when Trending has no figure | fallback, flagged `估算`, ~±5% |
+| GitHub REST `stargazers/history` | daily new stars for repos without a Trending gain | first historical source, flagged `GitHub 历史` |
+| OSSInsight `stargazers/history` | estimated gain when GitHub history is unavailable/incomplete | fallback, flagged `估算`, ~±5% |
 
 An estimate is discarded when it cannot be computed (fewer than 2 data points), when
 it has no total star count to check against, or when it exceeds 110% of the

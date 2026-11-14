@@ -1,0 +1,260 @@
+{
+  "run_date": "2026-11-14",
+  "period_days": 30,
+  "mode": "absolute",
+  "top": [
+    {
+      "repo": "morluto/rea",
+      "stars": 459151,
+      "m30": 271084,
+      "w7": null,
+      "d1": null,
+      "desc": "Reverse engineer anything with agents, from app behavior down to native binaries.",
+      "lang": "TypeScript",
+      "source": "trending"
+    },
+    {
+      "repo": "debpalash/VoiceStudio",
+      "stars": 110460,
+      "m30": 48848,
+      "w7": null,
+      "d1": null,
+      "desc": "VoiceStudio is the open-source, fully-local ElevenLabs alternative — voice cloning, voice design, video dubbing, dictation, transcription & audiobook creation in 646 languages.",
+      "lang": "Python",
+      "source": "trending"
+    },
+    {
+      "repo": "cloudflare/security-audit-skill",
+      "stars": 72370,
+      "m30": 42839,
+      "w7": 8829,
+      "d1": null,
+      "desc": "A coding-agent skill for multi-phase security audits with independently verified, machine-readable findings",
+      "lang": "JavaScript",
+      "source": "trending"
+    },
+    {
+      "repo": "mattpocock/skills",
+      "stars": 324268,
+      "m30": 35682,
+      "w7": 7599,
+      "d1": 898,
+      "desc": "Skills for Real Engineers. Straight from my .agents directory.",
+      "lang": "Shell",
+      "source": "trending"
+    },
+    {
+      "repo": "stablyai/orca",
+      "stars": 124800,
+      "m30": 33601,
+      "w7": null,
+      "d1": null,
+      "desc": "Orca lets you run a fleet of coding agents (e.g. Claude Code, Codex) with your own subscription. Available on desktop, mobile and remote runtime.",
+      "lang": "TypeScript",
+      "source": "trending"
+    },
+    {
+      "repo": "pingdotgg/t3code",
+      "stars": 60263,
+      "m30": 32057,
+      "w7": 10130,
+      "d1": null,
+      "desc": "The best way to control Claude Code, Codex and more from any computer or phone",
+      "lang": "TypeScript",
+      "source": "trending"
+    },
+    {
+      "repo": "pbakaus/impeccable",
+      "stars": 110017,
+      "m30": 29328,
+      "w7": null,
+      "d1": null,
+      "desc": "The design vocabulary for your coding agent. Steer with polish and bolder, review with critique and audit, catch AI slop before it ships.",
+      "lang": "Rust",
+      "source": "trending"
+    },
+    {
+      "repo": "Nutlope/hallmark",
+      "stars": 54830,
+      "m30": 24631,
+      "w7": 5016,
+      "d1": null,
+      "desc": "Anti-AI-slop design skill for Claude Code, Cursor, and Codex.",
+      "lang": "CSS",
+      "source": "trending"
+    },
+    {
+      "repo": "heygen-com/hyperframes",
+      "stars": 84212,
+      "m30": 21924,
+      "w7": null,
+      "d1": null,
+      "desc": "Write HTML. Render video. Built for agents.",
+      "lang": "TypeScript",
+      "source": "trending"
+    },
+    {
+      "repo": "vercel-labs/agent-desktop",
+      "stars": 23638,
+      "m30": 21513,
+      "w7": 5408,
+      "d1": null,
+      "desc": "Computer use CLI for AI agents",
+      "lang": "Rust",
+      "source": "trending"
+    },
+    {
+      "repo": "obra/superpowers",
+      "stars": 317500,
+      "m30": 19980,
+      "w7": 3959,
+      "d1": 530,
+      "desc": "An agentic skills framework & software development methodology that works.",
+      "lang": "Shell",
+      "source": "trending"
+    },
+    {
+      "repo": "Leonxlnx/taste-skill",
+      "stars": 115448,
+      "m30": 19948,
+      "w7": 3885,
+      "d1": null,
+      "desc": "Agent skills that give coding agents taste: art direction, reference images and a browser check instead of generic AI pages",
+      "lang": "JavaScript",
+      "source": "trending"
+    },
+    {
+      "repo": "hmjz100/LinkSwift",
+      "stars": 39851,
+      "m30": 18461,
+      "w7": null,
+      "d1": null,
+      "desc": "一个基于 JavaScript 的网盘文件下载地址获取工具。基于【网盘直链下载助手】修改 ，支持 百度网盘 / 阿里云盘 / 中国移动云盘 / 天翼云盘 / 迅雷云盘 / 夸克网盘 / UC网盘 / 123云盘 八大网盘",
+      "lang": "JavaScript",
+      "source": "trending"
+    },
+    {
+      "repo": "HKUDS/DeepTutor",
+      "stars": 59156,
+      "m30": 17913,
+      "w7": null,
+      "d1": null,
+      "desc": "DeepTutor: Lifelong Personalized Tutoring. https://deeptutor.info/ .",
+      "lang": "Python",
+      "source": "trending"
+    },
+    {
+      "repo": "milind-soni/OpenMausBot",
+      "stars": 22618,
+      "m30": 17866,
+      "w7": 7763,
+      "d1": null,
+      "desc": "Open-source Grok Bot alternative with a virtual machine that bots can use",
+      "lang": "TypeScript",
+      "source": "trending"
+    },
+    {
+      "repo": "tashfeenahmed/freellmapi",
+      "stars": 52171,
+      "m30": 17491,
+      "w7": null,
+      "d1": null,
+      "desc": "10.1 billion tokens per month. 87 free LLM providers. 1,313 free model endpoints. All behind one /v1 endpoint, plus any custom OpenAI-compatible endpoint. Smart routing, automatic failover, encrypted keys. Personal experimentation only.",
+      "lang": "TypeScript",
+      "source": "trending"
+    },
+    {
+      "repo": "thedotmack/claude-mem",
+      "stars": 117008,
+      "m30": 17120,
+      "w7": null,
+      "d1": null,
+      "desc": "Persistent Context Across Sessions for Every Agent – Captures everything your agent does during sessions, compresses it with AI, and injects relevant context back into future sessions. Works with Claude Code, OpenClaw, Codex, Gemini, Hermes, Copilot, OpenCode + More",
+      "lang": "TypeScript",
+      "source": "trending"
+    },
+    {
+      "repo": "xerj-org/xerj",
+      "stars": 19065,
+      "m30": 16946,
+      "w7": null,
+      "d1": null,
+      "desc": "AI search engine and MCP server for bots and agents. One Rust binary indexes code, docs, logs, JSONL/CSV and PDFs for BM25 full-text, vector and hybrid search, code search without grep, agent memory and RAG. Elasticsearch-compatible API; Corpus Hub serves hundreds of reference memory corpora.",
+      "lang": "Rust",
+      "source": "trending"
+    },
+    {
+      "repo": "D4Vinci/Scrapling",
+      "stars": 102761,
+      "m30": 15639,
+      "w7": null,
+      "d1": null,
+      "desc": "🕷️ The BEST Web Scraping framework that handles everything from a single request to a full-scale crawl! Don't be shy, join here: https://discord.gg/EMgGbDceNQ and follow here for daily tips and tricks: https://x.com/Scrapling_dev",
+      "lang": "Python",
+      "source": "trending"
+    },
+    {
+      "repo": "anomalyco/opencode",
+      "stars": 226813,
+      "m30": 15007,
+      "w7": null,
+      "d1": null,
+      "desc": "The open source coding agent.",
+      "lang": "TypeScript",
+      "source": "trending"
+    }
+  ],
+  "runners_up": [
+    {
+      "repo": "NationalSecurityAgency/ghidra",
+      "stars": 100033,
+      "m30": 14355,
+      "w7": null,
+      "d1": null,
+      "desc": "Ghidra is a software reverse engineering (SRE) framework",
+      "lang": "Java",
+      "source": "trending"
+    },
+    {
+      "repo": "anthropics/skills",
+      "stars": 194453,
+      "m30": 13734,
+      "w7": 6169,
+      "d1": null,
+      "desc": "Public repository for Agent Skills",
+      "lang": "Python",
+      "source": "trending"
+    },
+    {
+      "repo": "Renhuai123/ziwei-doushu",
+      "stars": 18162,
+      "m30": 13677,
+      "w7": null,
+      "d1": null,
+      "desc": "紫微斗数开源排盘引擎 — 基于倪海厦《天纪》体系，含完整排盘算法、四化系统、格局知识库、古籍原文数据",
+      "lang": "TypeScript",
+      "source": "trending"
+    },
+    {
+      "repo": "harry0703/MoneyPrinterTurbo",
+      "stars": 143508,
+      "m30": 13471,
+      "w7": 3217,
+      "d1": null,
+      "desc": "利用 AI 大模型和自动化工作流，根据主题或关键词一键生成高清短视频。Generate HD short videos from a topic or keyword with an automated AI workflow.",
+      "lang": "Python",
+      "source": "trending"
+    },
+    {
+      "repo": "elayadesign/ai-design-skills",
+      "stars": 15520,
+      "m30": 12943,
+      "w7": null,
+      "d1": null,
+      "desc": "",
+      "lang": "Python",
+      "source": "trending"
+    }
+  ],
+  "scanned": 865
+}

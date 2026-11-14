@@ -39,7 +39,7 @@ MERGED_KEY = "merged.json"
 
 
 def _window(settings: Settings, today: date) -> tuple[date, date]:
-    """Inclusive ``[today - period_days, today]`` passed to OSSInsight."""
+    """Inclusive ``[today - period_days, today]`` for both history sources."""
     return today - timedelta(days=settings.period_days), today
 
 
@@ -92,10 +92,19 @@ def step_merge(settings: Settings, cache: Cache, day: str, today: date) -> int:
         return 1
     records = merge_records(pages)
     date_from, date_to = _window(settings, today)
-    # One shared session for the whole estimate sweep. Without connection
-    # reuse every OSSInsight call pays a fresh TLS handshake, which measured
-    # at ~4.9s per request and pushed the first real run past 10 minutes.
+    # Share connections across both services during the estimate sweep.
     with requests.Session() as session:
+        github_history = functools.partial(
+            est.fetch_github_history, session=session, token=settings.github_token)
+        est.fill_github_estimates(
+            records,
+            enable=settings.enable_github_history,
+            date_from=date_from,
+            date_to=date_to,
+            history=github_history,
+            cache=cache,
+            day=day,
+        )
         history = functools.partial(est.fetch_history, session=session)
         est.fill_estimates(
             records,

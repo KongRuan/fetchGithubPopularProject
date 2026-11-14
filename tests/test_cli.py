@@ -18,6 +18,8 @@ def _write_config(root: Path) -> Path:
         "languages: [python]\n"
         'github_token: ""\n'
         "enable_ossinsight_estimate: false\n"
+        "enable_github_history: false\n"
+        "enable_chinese_summary: false\n"
         "output_dir: output\n",
         encoding="utf-8",
     )
@@ -38,6 +40,47 @@ def _fill_cache(root: Path, day: str) -> None:
             encoding="utf-8")
         (cache_dir / f"trending_{window}_python.html").write_text(
             "", encoding="utf-8")
+
+
+def test_merge_prefers_github_history_then_falls_back_to_ossinsight(tmp_path, monkeypatch):
+    from src.rank import estimate as est
+    from src.rank.config import Settings
+
+    def row(repo, gain=None):
+        return {"repo": repo, "stars": 100, "m30": gain, "w7": None,
+                "d1": None, "desc": "", "lang": ""}
+
+    monkeypatch.setattr(cli, "_load_pages", lambda *args: [[
+        row("official/repo", 8), row("primary/repo"), row("fallback/repo"),
+    ]])
+    github_calls = []
+    oss_calls = []
+
+    def github(owner, name, cache, day, **kwargs):
+        github_calls.append(owner)
+        if owner == "fallback":
+            return []
+        return [
+            {"week": 1792281600, "days": [4, 0, 0, 0, 0, 0, 0], "total": 4},
+            {"week": 1791676800, "days": [0, 0, 0, 0, 0, 0, 3], "total": 3},
+        ]
+
+    def oss(owner, name, period, date_from, date_to, cache, day, **kwargs):
+        oss_calls.append(owner)
+        return [{"stargazers": "10"}, {"stargazers": "20"}]
+
+    monkeypatch.setattr(est, "fetch_github_history", github, raising=False)
+    monkeypatch.setattr(est, "fetch_history", oss)
+    settings = Settings(root=tmp_path, period_days=1, top_n=3)
+    cache = Cache(tmp_path)
+    assert cli.step_merge(settings, cache, "2026-10-18", date(2026, 10, 18)) == 0
+    records = cache.read_json("merged.json")["records"]
+    assert records["primary/repo"]["m30"] == 7
+    assert records["primary/repo"]["source"] == "est-github"
+    assert records["fallback/repo"]["m30"] == 10
+    assert records["official/repo"]["m30"] == 8
+    assert github_calls == ["primary", "fallback"]
+    assert set(oss_calls) == {"fallback"}
 
 
 def test_render_step_from_cached_pages(tmp_path, monkeypatch):
@@ -75,9 +118,11 @@ def test_missing_cache_reports_error(tmp_path):
 
 
 def test_full_pipeline_runs_offline_end_to_end(tmp_path, monkeypatch):
-    """No subcommand runs fetch -> merge -> render; pre-populated cache keys
-    mean fetch makes zero network calls."""
+    """No subcommand runs fetch -> merge -> render without external services."""
     cfg = _write_config(tmp_path)
+    monkeypatch.setattr("src.rank.translate.requests.Session.post",
+                        lambda *args, **kwargs: (_ for _ in ()).throw(
+                            AssertionError("offline test called translation service")))
     _fill_cache(tmp_path, "2026-10-18")
 
     monkeypatch.setattr(cli, "_today", lambda: date(2026, 10, 18))
@@ -110,6 +155,9 @@ def test_render_chinese_summary_uses_the_model(tmp_path, monkeypatch):
     """`render` asks the local model for a Chinese summary per ranked repo
     and caches it, so a second render makes no further calls."""
     cfg = _write_config(tmp_path)
+    cfg.write_text(cfg.read_text(encoding="utf-8").replace(
+        "enable_chinese_summary: false", "enable_chinese_summary: true"),
+        encoding="utf-8")
     cache_dir = tmp_path / "data" / "cache" / "pages" / "2026-10-18"
     cache_dir.mkdir(parents=True)
     (cache_dir / "trending_monthly_all.html").write_text(

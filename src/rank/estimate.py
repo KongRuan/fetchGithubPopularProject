@@ -1,14 +1,13 @@
-"""Estimate missing window gains from OSSInsight star history.
+"""Fill missing Trending gains from GitHub's history, then OSSInsight.
 
-GitHub Trending's official ``stars this month`` figure is authoritative, but
-Trending publishes it only for repositories currently on the page. Records
-without a 30-day figure get one estimated from OSSInsight's star-history API
-and are flagged as estimates (``est-*``), never merged silently with the
-official numbers.
+GitHub Trending's published window gain is authoritative. For repositories
+it doesn't cover, first sum GitHub's privacy-safe daily star counts. If that
+history is unavailable or incomplete, try OSSInsight's star-history series.
+Both historical sources carry an explicit ``est-*`` label so they are not
+mistaken for Trending figures.
 
-OSSInsight declares its data quality degraded, so the values here are a
-LOWER BOUND on the true gain — hence every value this module produces carries
-an estimate source label that the report renders as ``估算``.
+OSSInsight declares its data quality degraded, so its delta is a lower bound
+and the report labels it ``估算``.
 
 Contract: ``merge.apply_sanity_rules`` drops any ``est-*`` record whose
 ``m30 > stars * 1.10`` and any ``est-*`` record with no total at all. This
@@ -19,20 +18,20 @@ from __future__ import annotations
 
 import logging
 import time
-from datetime import date
+from datetime import date, datetime, timedelta, timezone
 from decimal import Decimal
 from typing import Callable
 
 import requests
 
-from .merge import SOURCE_EST_DAY, SOURCE_EST_FAILED, SOURCE_EST_WEEK
+from .merge import SOURCE_EST_DAY, SOURCE_EST_FAILED, SOURCE_EST_GITHUB, SOURCE_EST_WEEK
 
 log = logging.getLogger(__name__)
 
 API = "https://api.ossinsight.io/v1/repos/{owner}/{name}/stargazers/history/"
 DELAY_SECONDS = 0.25
-# The public OSSInsight API started returning 500 (upstream auth failure in
-# late 2026). One bad host must not turn a leaderboard run into a 20-minute
+# The public OSSInsight API has returned 500 for multiple repositories.
+# One bad host must not turn a leaderboard run into a 20-minute
 # retry spiral across hundreds of repositories, so a run that sees nothing
 # but failures stops calling the API at all.
 MAX_CONSECUTIVE_FAILURES = 5
@@ -66,6 +65,118 @@ def history_delta(rows: list[dict]) -> int | None:
     return int(last - first)
 
 
+def _history_key(owner: str, name: str, period: str,
+                 date_from: date, date_to: date, day: str) -> str:
+    return f"est/{day}/{owner}@{name}_{period}_{date_from}_{date_to}.json"
+
+
+def _github_key(owner: str, name: str, day: str) -> str:
+    return f"github_history/{day}/{owner}@{name}.json"
+
+
+def fetch_github_history(owner: str, name: str, cache, day: str, *,
+                         session=None, token: str = "") -> list[dict]:
+    """Fetch GitHub's weekly star history, caching it separately from OSSInsight."""
+    key = _github_key(owner, name, day)
+    cached = cache.read_json(key) if cache is not None else None
+    if cached is not None:
+        return cached
+    url = f"https://api.github.com/repos/{owner}/{name}/stargazers/history"
+    headers = {
+        "Accept": "application/vnd.github+json",
+        "X-GitHub-Api-Version": "2026-03-10",
+        "User-Agent": "fetchGithubPopularProject",
+    }
+    if token:
+        headers["Authorization"] = f"Bearer {token}"
+    get = session.get if session is not None else requests.get
+    response = get(url, headers=headers, timeout=10)
+    response.raise_for_status()
+    rows = response.json()
+    if not isinstance(rows, list):
+        raise ValueError("GitHub star history is not a list")
+    if cache is not None:
+        cache.write_json(key, rows)
+    return rows
+
+
+def github_window_gain(rows: list[dict], date_from: date,
+                       date_to: date) -> int | None:
+    """Sum the API's daily star creations, only for a fully covered window.
+
+    GitHub returns newest weeks first; ``week`` is the Unix timestamp of the
+    Sunday starting that week. Incomplete windows fall through to OSSInsight
+    rather than treating missing days as zero.
+    """
+    if not rows or date_from > date_to:
+        return None
+    daily: dict[date, int] = {}
+    for row in rows:
+        week = datetime.fromtimestamp(row["week"], timezone.utc).date()
+        days = row["days"]
+        if len(days) != 7 or any(type(value) is not int or value < 0
+                                 for value in days):
+            raise ValueError("invalid GitHub daily star counts")
+        for index, value in enumerate(days):
+            daily[week + timedelta(days=index)] = value
+    gain = 0
+    current = date_from
+    while current <= date_to:
+        if current not in daily:
+            return None
+        gain += daily[current]
+        current += timedelta(days=1)
+    return gain
+
+
+def fill_github_estimates(records: dict, *, enable: bool = True,
+                          date_from: date, date_to: date,
+                          history: Callable, cache, day: str) -> None:
+    """Prefer GitHub's daily history for missing gains; leave gaps for fallback."""
+    if not enable:
+        return
+    failures = 0
+    rate_limited = False
+    for rec in records.values():
+        if rec.get("m30") is not None:
+            continue
+        pair = _owner_name(rec["repo"])
+        if pair is None:
+            continue
+        owner, name = pair
+        if rate_limited or failures >= MAX_CONSECUTIVE_FAILURES:
+            rows = (cache.read_json(_github_key(owner, name, day))
+                    if cache is not None else None)
+            if rows is None:
+                continue
+        else:
+            try:
+                rows = history(owner, name, cache, day)
+                failures = 0
+            except requests.HTTPError as exc:
+                response = exc.response
+                if response is not None and response.status_code in (403, 429):
+                    rate_limited = True
+                    log.warning("GitHub star history unavailable (HTTP %d); "
+                                "falling back to OSSInsight", response.status_code)
+                else:
+                    failures += 1
+                    log.warning("GitHub history failed for %s: %s", rec["repo"], exc)
+                continue
+            except (requests.RequestException, OSError, ValueError) as exc:
+                failures += 1
+                log.warning("GitHub history failed for %s: %s", rec["repo"], exc)
+                continue
+        try:
+            gain = github_window_gain(rows, date_from, date_to)
+        except (TypeError, ValueError, KeyError, OverflowError, OSError) as exc:
+            log.warning("invalid GitHub history for %s: %s", rec["repo"], exc)
+            continue
+        if gain is not None:
+            rec["m30"] = gain
+            rec["source"] = SOURCE_EST_GITHUB
+
+
 def fetch_history(
     owner: str,
     name: str,
@@ -92,7 +203,7 @@ def fetch_history(
     The cache key embeds day + repo + period + window, so same-day re-runs are
     free and a new day refetches.
     """
-    key = f"est/{day}/{owner}@{name}_{period}_{date_from}_{date_to}.json"
+    key = _history_key(owner, name, period, date_from, date_to, day)
     cached = cache.read_json(key) if cache is not None else None
     if cached is not None:
         return cached
@@ -170,22 +281,35 @@ def fill_estimates(records: dict, *, period_days: int, enable: bool,
     for rec in records.values():
         if rec.get("m30") is not None:
             continue
-        if _global_failures >= MAX_CONSECUTIVE_FAILURES:
-            rec["source"] = SOURCE_EST_FAILED
-            continue
         pair = _owner_name(rec["repo"])
         if pair is None:
             rec["source"] = SOURCE_EST_FAILED
             continue
         owner, name = pair
-        try:
-            rows = history(owner, name, period, date_from, date_to, cache, day)
-            _global_failures = 0
-        except Exception as exc:  # noqa: BLE001 - one repo must not kill the run
-            _global_failures += 1
-            log.warning("estimate failed for %s: %s", rec["repo"], exc)
-            rec["source"] = SOURCE_EST_FAILED
-            continue
+        if _global_failures >= MAX_CONSECUTIVE_FAILURES:
+            # A failed host must not hide earlier successful, cached estimates.
+            rows = (
+                cache.read_json(_history_key(owner, name, period,
+                                             date_from, date_to, day))
+                if cache is not None else None
+            )
+            if rows is None:
+                rec["source"] = SOURCE_EST_FAILED
+                continue
+        else:
+            try:
+                rows = history(owner, name, period, date_from, date_to, cache, day)
+                _global_failures = 0
+            except Exception as exc:  # noqa: BLE001 - one repo must not kill the run
+                _global_failures += 1
+                log.warning("estimate failed for %s: %s", rec["repo"], exc)
+                if _global_failures == MAX_CONSECUTIVE_FAILURES:
+                    log.warning(
+                        "OSSInsight unavailable; using cached history only "
+                        "for remaining repositories"
+                    )
+                rec["source"] = SOURCE_EST_FAILED
+                continue
         delta = history_delta(rows)
         if delta is None:
             rec["source"] = SOURCE_EST_FAILED
@@ -198,17 +322,16 @@ def revalidate(records: list[dict], *, date_from: date, date_to: date,
                history: Callable, cache, day: str) -> None:
     """Re-fetch estimates that made the report using the denser daily series.
 
-    Only records whose ``source`` starts with ``est-`` are touched, and
-    ``records`` is the already-ranked top list — so this never wastes calls on
-    repositories that missed the report. The daily series is the cross-check
-    for estimates near the report cutoff.
+    Only OSSInsight weekly estimates on the already-ranked top list are
+    rechecked; GitHub history already provides daily counts and never needs
+    a request to the backup service.
 
     ``records`` is the ranked top list; entries are updated in place.
     """
     global _global_failures
     _global_failures = 0
     for rec in records:
-        if not str(rec.get("source", "")).startswith("est-"):
+        if rec.get("source") != SOURCE_EST_WEEK:
             continue
         if _global_failures >= MAX_CONSECUTIVE_FAILURES:
             return

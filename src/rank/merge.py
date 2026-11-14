@@ -28,13 +28,15 @@ ESTIMATE_MARGIN = 1.10
 
 #: Source labels recorded on every record.
 #: trending    — GitHub Trending's own "stars this ..." figure (authoritative)
-#: est-week    — OSSInsight weekly series, the cheap first pass
+#: est-github  — GitHub daily star-history counts, primary historical source
+#: est-week    — OSSInsight weekly series, fallback for missing GitHub data
 #: est-day     — same API, daily series, written only by estimate.revalidate
 #: est-failed  — no usable series; m30 stays None and the repo cannot rank
 #: dropped     — an est-* figure failed the sanity check and m30 was cleared
 SOURCE_TRENDING = "trending"
 SOURCE_EST_WEEK = "est-week"
 SOURCE_EST_DAY = "est-day"
+SOURCE_EST_GITHUB = "est-github"
 SOURCE_EST_FAILED = "est-failed"
 SOURCE_DROPPED = "dropped"
 #: The skill board's own label: created inside the window, so the repository's

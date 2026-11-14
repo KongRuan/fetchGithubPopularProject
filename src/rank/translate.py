@@ -27,6 +27,7 @@ HEADERS = {
 }
 MODEL = "gpt-4o-mini"
 DELAY_SECONDS = 0.35
+MAX_CONSECUTIVE_FAILURES = 2
 
 
 def _key(day: str, repo: str) -> str:
@@ -50,6 +51,7 @@ def translate_description(
     day: str,
     sleep: Callable[[float], None] = time.sleep,
     retries: int = 2,
+    allow_network: bool = True,
 ) -> str | None:
     """Return the Chinese summary for ``description``, or None on failure."""
     if not description:
@@ -58,6 +60,8 @@ def translate_description(
     cached = cache.read_json(key)
     if isinstance(cached, dict) and isinstance(cached.get("zh"), str):
         return cached["zh"]
+    if not allow_network:
+        return None
 
     payload = {
         "model": MODEL,
@@ -98,12 +102,27 @@ def fill_chinese_summaries(records: Iterable[dict], *, cache: Cache, day: str) -
     Callers pass only the rows the report will actually show: a translation
     costs one model call, and the archived JSON is not worth 800 of them.
     """
+    failures = 0
     with requests.Session() as session:
         for rec in records:
             desc = rec.get("desc") or ""
             if not desc:
                 continue
+            # Keep reading cached translations even after the model stops responding.
+            cached = cache.read_json(_key(day, rec["repo"]))
+            is_cached = (isinstance(cached, dict) and
+                         isinstance(cached.get("zh"), str))
             zh = translate_description(
-                rec["repo"], desc, session=session, cache=cache, day=day)
+                rec["repo"], desc, session=session, cache=cache, day=day,
+                allow_network=failures < MAX_CONSECUTIVE_FAILURES)
             if zh:
                 rec["desc_zh"] = zh
+                if not is_cached:
+                    failures = 0
+            elif not is_cached and failures < MAX_CONSECUTIVE_FAILURES:
+                failures += 1
+                if failures == MAX_CONSECUTIVE_FAILURES:
+                    log.warning(
+                        "translation service unavailable; using cached "
+                        "summaries only"
+                    )

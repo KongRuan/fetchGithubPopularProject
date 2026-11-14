@@ -55,6 +55,37 @@ def test_fill_only_touches_records_missing_m30():
     assert records["has/gain"]["m30"] == 42
 
 
+def test_cached_history_still_ranks_after_api_circuit_opens(tmp_path, monkeypatch):
+    """An outage must not hide already-fetched estimates later in the sweep."""
+    cache = Cache(tmp_path)
+    cache.write_json(
+        "est/2026-10-18/cached@repo_week_2026-09-18_2026-10-18.json",
+        [{"date": "a", "stargazers": "10"},
+         {"date": "b", "stargazers": "30"}],
+    )
+    records = {f"bad/r{i}": _rec(f"bad/r{i}") for i in range(5)}
+    records["cached/repo"] = _rec("cached/repo")
+
+    calls = []
+
+    def unavailable_get(url, **kwargs):
+        calls.append(url)
+        raise OSError("service unavailable")
+
+    monkeypatch.setattr(est.requests, "get", unavailable_get)
+
+    def history(owner, name, period, date_from, date_to, cache, day):
+        return est.fetch_history(owner, name, period, date_from, date_to,
+                                 cache, day, sleep=lambda _: None, retries=1)
+
+    est.fill_estimates(records, period_days=30, enable=True,
+                       date_from=date(2026, 9, 18), date_to=date(2026, 10, 18),
+                       history=history, cache=cache, day="2026-10-18")
+    assert len(calls) == 5
+    assert records["cached/repo"]["m30"] == 20
+    assert records["cached/repo"]["source"] == SOURCE_EST_WEEK
+
+
 def test_fill_marks_failure_without_raising():
     def boom(*args, **kwargs):
         raise OSError("network down")
